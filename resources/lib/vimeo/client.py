@@ -1,0 +1,135 @@
+import urllib
+
+__author__ = 'bromix'
+
+import time
+import hmac
+from hashlib import sha1
+
+from resources.lib.kodion import simple_requests as requests
+
+
+class Client():
+    CONSUMER_KEY = 'ae4ac83f9facda375a72fed704a3643a'
+    CONSUMER_SECRET = 'b6072a4aba1eaaed'
+
+    def __init__(self, oauth_token='', oauth_token_secret=''):
+        self._oauth_token = oauth_token
+        self._oauth_token_secret = oauth_token_secret
+        pass
+
+    def search(self, query, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.search',
+                     'sort': 'relevant',
+                     'page': str(page),
+                     'summary_response': '1',
+                     'query': query}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_featured(self):
+        return self._perform_v2_request(url='http://vimeo.com/api/v2/featured.xml',
+                                        method='GET')
+
+    def _create_authorization(self, url, method, params=None):
+        def _percent_encode(s):
+            return urllib.quote_plus(s).replace("+", "%20").replace("*", "%2A").replace("%7E", "~")
+
+        def _compute_signature(s):
+            key = _percent_encode(self.CONSUMER_SECRET) + '&' + _percent_encode(self._oauth_token_secret)
+            a = hmac.new(key, s, sha1)
+            return a.digest().encode("base64").rstrip('\n')
+
+        def _normalize_parameters(_params):
+            sorted_keys = sorted(_params.keys())
+            list_of_params = []
+            for key in sorted_keys:
+                value = _params[key]
+                list_of_params.append('%s=%s' % (key, value))
+                pass
+            return '&'.join(list_of_params)
+
+        if not params:
+            params = {}
+            pass
+
+        all_params = {'oauth_consumer_key': self.CONSUMER_KEY,
+                      'oauth_signature_method': 'HMAC-SHA1',
+                      'oauth_timestamp': str(time.time()),
+                      'oauth_nonce': str(time.time()),
+                      'oauth_version': '1.0'}
+        if self._oauth_token:
+            all_params['oauth_token'] = self._oauth_token
+            pass
+        all_params.update(params)
+
+        base_string = _percent_encode(method.upper())
+        base_string += '&'
+        base_string += _percent_encode(url)
+        base_string += '&'
+        base_string += _percent_encode(_normalize_parameters(all_params))
+
+        all_params['oauth_signature'] = _compute_signature(base_string)
+
+        authorization = []
+        for key in all_params:
+            if key.startswith('oauth_'):
+                authorization.append('%s="%s"' % (key, _percent_encode(all_params[key])))
+                pass
+            pass
+        return {'Authorization': 'OAuth %s' % (', '.join(authorization))}
+
+    def _perform_v2_request(self, url, method='GET', headers=None, post_data=None, params=None, allow_redirects=True):
+        # params
+        if not params:
+            params = {}
+            pass
+        _params = {}
+        _params.update(params)
+
+        # headers
+        if not headers:
+            headers = {}
+            pass
+        _headers = {
+            'User-Agent': 'VimeoAndroid/1.1.42 (Android ver=4.4.2 sdk=19; Model samsung GT-I9505; Linux 3.4.0-3423977 armv7l)',
+            'Host': 'vimeo.com'}
+        _headers.update(headers)
+        oauth_parms = post_data or params
+        _headers.update(self._create_authorization(url, method, oauth_parms))
+
+        # url
+        _url = url
+
+        result = None
+
+        if method == 'GET':
+            result = requests.get(_url, params=_params, headers=_headers, verify=False, allow_redirects=allow_redirects)
+            pass
+        elif method == 'POST':
+            result = requests.post(_url, data=post_data, params=_params, headers=_headers, verify=False,
+                                   allow_redirects=allow_redirects)
+            pass
+        elif method == 'PUT':
+            result = requests.put(_url, data=post_data, params=_params, headers=_headers, verify=False,
+                                  allow_redirects=allow_redirects)
+            pass
+        elif method == 'DELETE':
+            result = requests.delete(_url, params=_params, headers=_headers, verify=False,
+                                     allow_redirects=allow_redirects)
+            pass
+
+        if result is None:
+            return {}
+
+        return result
+
+    pass
