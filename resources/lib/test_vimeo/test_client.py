@@ -16,14 +16,13 @@ class TestClient(unittest.TestCase):
 
     def test_create_authorization(self):
         client = self.get_client()
-        params = {'method': 'vimeo.videos.search',
-                  'sort': 'relevant',
-                  'page': '1',
-                  'summary_response': '1',
-                  'query': 'superman'}
-                  #'oauth_timestamp': '1425165588',
-                  #'oauth_nonce': '720610187562182'}
-        oauth = client._create_authorization(url='http://vimeo.com/api/rest/v2',
+        params = {'x_auth_password': '',
+                  'x_auth_username': '',
+                  'x_auth_mode': 'client_auth',
+                  'x_auth_permission': 'delete',
+                  'oauth_timestamp': '1425168546',
+                  'oauth_nonce': '721035593002863'}
+        oauth = client._create_authorization(url='https://secure.vimeo.com/oauth/access_token',
                                              method='POST',
                                              params=params)
         pass
@@ -37,5 +36,9 @@ class TestClient(unittest.TestCase):
         client = self.get_client()
         xml_data = client.get_featured()
         pass
+
+    def test_login(self):
+        client = self.get_client()
+        xml_data = client.login('', '')
 
     pass

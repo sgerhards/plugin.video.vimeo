@@ -1,4 +1,5 @@
 import urllib
+import urlparse
 
 __author__ = 'bromix'
 
@@ -17,6 +18,22 @@ class Client():
         self._oauth_token = oauth_token
         self._oauth_token_secret = oauth_token_secret
         pass
+
+    def login(self, username, password):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded',
+                   'Host': 'secure.vimeo.com'}
+        post_data = {'x_auth_password': password,
+                     'x_auth_username': username,
+                     'x_auth_mode': 'client_auth',
+                     'x_auth_permission': 'delete'}
+
+        data = self._perform_v2_request(url='https://secure.vimeo.com/oauth/access_token',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+        data = dict(urlparse.parse_qsl(data.text))
+        return
 
     def search(self, query, page=1):
         if not page:
@@ -41,7 +58,11 @@ class Client():
 
     def _create_authorization(self, url, method, params=None):
         def _percent_encode(s):
-            return urllib.quote_plus(s).replace("+", "%20").replace("*", "%2A").replace("%7E", "~")
+            result = urllib.quote_plus(s).replace("+", "%20").replace("*", "%2A").replace("%7E", "~")
+            # the implementation of the app has a bug. someone double escaped the '@' so we have to correct this
+            # on our end.
+            result = result.replace('%40', '%2540')
+            return result
 
         def _compute_signature(s):
             key = _percent_encode(self.CONSUMER_SECRET) + '&' + _percent_encode(self._oauth_token_secret)
