@@ -32,8 +32,8 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-        data = dict(urlparse.parse_qsl(data.text))
-        return
+        data = dict(urlparse.parse_qsl(data))
+        return data
 
     def search(self, query, page=1):
         if not page:
@@ -46,6 +46,69 @@ class Client():
                      'page': str(page),
                      'full_response': '1',
                      'query': query}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_my_feed(self, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.getSubscriptions',
+                     'sort': 'newest',
+                     'page': str(page),
+                     'full_response': '1'}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_my_likes(self, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.getLikes',
+                     'sort': 'most_liked',
+                     'page': str(page),
+                     'full_response': '1'}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_watch_later(self, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.albums.getWatchLater',
+                     'page': str(page),
+                     'full_response': '1'}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_all_contacts(self, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.contacts.getAll',
+                     'page': str(page),
+                     'sort': 'alphabetical'}
+                     #'full_response': '1'}
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',

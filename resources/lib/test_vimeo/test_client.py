@@ -12,6 +12,8 @@ class TestClient(unittest.TestCase):
 
     def get_client(self, logged_in=False):
         client = Client()
+        data = client.login(self.USERNAME, self.PASSWORD)
+        client = Client(data['oauth_token'], data['oauth_token_secret'])
         return client
 
     def test_create_authorization(self):
@@ -35,6 +37,11 @@ class TestClient(unittest.TestCase):
     def test_featured(self):
         client = self.get_client()
         xml_data = client.get_featured()
+        pass
+
+    def test_get_all_contacts(self):
+        client = self.get_client()
+        data = client.get_all_contacts()
         pass
 
     def test_login(self):

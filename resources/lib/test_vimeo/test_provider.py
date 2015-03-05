@@ -87,6 +87,10 @@ class TestProvider(unittest.TestCase):
         provider = Provider()
 
         context = kodion.Context(path='/')
+        settings = context.get_settings()
+        settings.set_string(kodion.constants.setting.LOGIN_USERNAME, '')
+        settings.set_string(kodion.constants.setting.LOGIN_PASSWORD, '')
+
         result = provider.navigate(context)
 
         items = result[0]

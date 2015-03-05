@@ -1,4 +1,4 @@
-from resources.lib.kodion.items import VideoItem
+from resources.lib.kodion.items import VideoItem, NextPageItem
 
 __author__ = 'bromix'
 
@@ -22,9 +22,6 @@ def do_xml_video_response(context, provider, xml):
 
     videos = root.find('videos')
     if videos is not None:
-        current_page = int(videos.get('page', '1'))
-        total_videos = int(videos.get('total', '1'))
-
         for video in videos.iter('video'):
             video_id = video.get('id')
             title = video.find('title').text
@@ -56,6 +53,17 @@ def do_xml_video_response(context, provider, xml):
             video_item.set_fanart(provider.get_fanart(context))
 
             result.append(video_item)
+            pass
+
+        if len(result) > 0:
+            current_page = int(videos.get('page', '1'))
+            videos_per_page = int(videos.get('perpage', '1'))
+            total_videos = int(videos.get('total', '1'))
+            if videos_per_page*current_page < total_videos:
+                next_page_item = NextPageItem(context, current_page)
+                next_page_item.set_fanart(provider.get_fanart(context))
+                result.append(next_page_item)
+                pass
             pass
         pass
     return result
