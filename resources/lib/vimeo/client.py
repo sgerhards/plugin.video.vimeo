@@ -115,6 +115,22 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def get_video_streams(self, video_id, password=None):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        if not password:
+            password = ''
+            pass
+
+        post_data = {'method': 'vimeo.videos.getSourceFileUrls',
+                     'password': password,
+                     'video_id': video_id}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+
     def get_featured(self):
         return self._perform_v2_request(url='http://vimeo.com/api/v2/featured.xml',
                                         method='GET')

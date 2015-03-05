@@ -1,4 +1,4 @@
-from resources.lib.kodion.items import DirectoryItem
+from resources.lib.kodion.items import DirectoryItem, UriItem
 from resources.lib.vimeo.client import Client
 
 __author__ = 'bromix'
@@ -109,6 +109,20 @@ class Provider(kodion.AbstractProvider):
         result.extend(helper.do_xml_video_response(context, self, xml))
 
         return result
+
+    @kodion.RegisterProviderPath('^/play/$')
+    def _on_play(self, context, re_match):
+        def _compare(item):
+            vq = context.get_settings().get_video_quality()
+            return vq - item['resolution']
+
+        video_id = context.get_param('video_id')
+        xml = self.get_client(context).get_video_streams(video_id=video_id)
+
+        video_streams = helper.do_xml_to_video_stream(context, self, xml)
+        video_stream = kodion.utils.find_best_fit(video_streams, _compare)
+
+        return UriItem(video_stream['url'])
 
     def on_root(self, context, re_match):
         result = []
