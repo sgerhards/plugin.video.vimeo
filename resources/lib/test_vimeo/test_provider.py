@@ -1,7 +1,7 @@
 __author__ = 'bromix'
 
 from resources.lib import kodion
-from resources.lib.youtube import Provider
+from resources.lib.vimeo import Provider
 
 import unittest
 
@@ -76,8 +76,7 @@ class TestProvider(unittest.TestCase):
         provider = Provider()
 
         path = kodion.utils.create_path(kodion.constants.paths.SEARCH, 'query')
-        context = kodion.Context(path=path, params={'q': 'lgr'})
-        context.set_localization(30502, 'Go to %s')
+        context = kodion.Context(path=path, params={'q': 'batman'})
         result = provider.navigate(context)
         items = result[0]
         self.assertGreater(len(items), 0)

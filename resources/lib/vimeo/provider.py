@@ -1,7 +1,9 @@
+from resources.lib.vimeo.client import Client
+
 __author__ = 'bromix'
 
 from resources.lib import kodion
-
+from resources.lib.vimeo import helper
 
 class Provider(kodion.AbstractProvider):
     def __init__(self):
@@ -57,17 +59,16 @@ class Provider(kodion.AbstractProvider):
                     pass
                 """
                 if not access_token and refresh_token:
-                    access_token, expires = YouTube(language=language).refresh_token(refresh_token)
+                    access_token, expires = Client(oauth_token=access_token, oauth_token_secret=refresh_token)
                     access_manager.update_access_token(access_token, expires)
                     pass
 
                 self._is_logged_in = access_token != ''
-                self._client = YouTube(items_per_page=items_per_page, access_token=access_token,
-                                       language=language)
-                self._client.set_log_error(context.log_error)
+                self._client = Client(oauth_token=access_token, oauth_token_secret=refresh_token)
+                #self._client.set_log_error(context.log_error)
             else:
-                self._client = YouTube(items_per_page=items_per_page, language=language)
-                self._client.set_log_error(context.log_error)
+                self._client = Client()
+                #self._client.set_log_error(context.log_error)
                 pass
             pass
 
@@ -79,8 +80,28 @@ class Provider(kodion.AbstractProvider):
     def get_fanart(self, context):
         return context.create_resource_path('media', 'fanart.jpg')
 
+    def on_search(self, search_text, context, re_match):
+        context.set_content_type(kodion.constants.content_type.EPISODES)
+
+        result = []
+
+        client = self.get_client(context)
+        page = int(context.get_param('page', '1'))
+        xml = client.search(query=search_text, page=page)
+        result.extend(helper.do_xml_video_response(context, self, xml))
+
+        return result
+
     def on_root(self, context, re_match):
         result = []
+
+        client = self.get_client(context)
+
+        # search
+        search_item = kodion.items.SearchItem(context, image=context.create_resource_path('media', 'search.png'),
+                                              fanart=self.get_fanart(context))
+        result.append(search_item)
+
         return result
 
     pass

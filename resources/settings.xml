@@ -2,6 +2,10 @@
 <settings>
     <!-- kodion General -->
     <category label="30000">
+        <!-- kodion Login -->
+        <setting id="kodion.login.username" type="text" label="30001"/>
+        <setting id="kodion.login.password" type="text" label="30002" option="hidden"/>
+        <setting type="sep" />
 
         <!-- kodion Visual -->
         <setting id="kodion.video.quality" type="enum" label="30010" lvalues="30016|30017|30011|30012|30013" default="3" />

@@ -44,7 +44,7 @@ class Client():
         post_data = {'method': 'vimeo.videos.search',
                      'sort': 'relevant',
                      'page': str(page),
-                     'summary_response': '1',
+                     'full_response': '1',
                      'query': query}
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
@@ -151,6 +151,6 @@ class Client():
         if result is None:
             return {}
 
-        return result
+        return result.text
 
     pass
