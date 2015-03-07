@@ -94,7 +94,7 @@ class Provider(kodion.AbstractProvider):
         client = self.get_client(context)
         page = int(context.get_param('page', '1'))
         xml = client.search(query=search_text, page=page)
-        result.extend(helper.do_xml_video_response(context, self, xml))
+        result.extend(helper.do_xml_videos_response(context, self, xml))
 
         return result
 
@@ -116,7 +116,7 @@ class Provider(kodion.AbstractProvider):
             xml = client.get_watch_later(page=page)
             pass
 
-        result.extend(helper.do_xml_video_response(context, self, xml))
+        result.extend(helper.do_xml_videos_response(context, self, xml))
 
         return result
 
@@ -131,7 +131,7 @@ class Provider(kodion.AbstractProvider):
 
         client = self.get_client(context)
         result.extend(
-            helper.do_xml_video_response(context, self, client.get_videos_of_user(user_id=user_id, page=page)))
+            helper.do_xml_videos_response(context, self, client.get_videos_of_user(user_id=user_id, page=page)))
         return result
 
     @kodion.RegisterProviderPath('^/me/following/$')
@@ -148,12 +148,15 @@ class Provider(kodion.AbstractProvider):
             return vq - item['resolution']
 
         video_id = context.get_param('video_id')
+        client = self.get_client(context)
+        video_item = helper.do_xml_video_response(context, self, client.get_video_info(video_id))
         xml = self.get_client(context).get_video_streams(video_id=video_id)
 
         video_streams = helper.do_xml_to_video_stream(context, self, xml)
         video_stream = kodion.utils.find_best_fit(video_streams, _compare)
 
-        return UriItem(video_stream['url'])
+        video_item.set_uri(video_stream['url'])
+        return video_item
 
     @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/(?P<like>like|unlike)/$')
     def _on_video_like(self, context, re_match):
@@ -161,7 +164,7 @@ class Provider(kodion.AbstractProvider):
         like = re_match.group('like') == 'like'
 
         client = self.get_client(context)
-        helper.do_xml_error_from_string(context, self, client.like_video(video_id=video_id, like=like))
+        helper.do_xml_error(context, self, client.like_video(video_id=video_id, like=like))
 
         context.get_ui().refresh_container()
         return True
@@ -173,9 +176,9 @@ class Provider(kodion.AbstractProvider):
 
         client = self.get_client(context)
         if method == 'add':
-            helper.do_xml_error_from_string(context, self, client.add_video_to_watch_later(video_id=video_id))
+            helper.do_xml_error(context, self, client.add_video_to_watch_later(video_id=video_id))
         elif method == 'remove':
-            helper.do_xml_error_from_string(context, self, client.remove_video_from_watch_later(video_id=video_id))
+            helper.do_xml_error(context, self, client.remove_video_from_watch_later(video_id=video_id))
             pass
 
         context.get_ui().refresh_container()
