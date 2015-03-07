@@ -40,7 +40,13 @@ def _do_next_page(result, xml_element, context, provider):
     pass
 
 
-def _do_xml_error(context, provider, root_element):
+def do_xml_error_from_string(context, provider, xml_string):
+    root = ET.fromstring(xml_string)
+    do_xml_error(context, provider, root)
+    pass
+
+
+def do_xml_error(context, provider, root_element):
     status = root_element.get('stat')
     if status == 'fail':
         error_item = root_element.find('err')
@@ -57,7 +63,7 @@ def _do_xml_error(context, provider, root_element):
 def do_xml_video_response(context, provider, xml):
     result = []
     root = ET.fromstring(xml)
-    _do_xml_error(context, provider, root)
+    do_xml_error(context, provider, root)
 
     videos = root.find('videos')
     if videos is not None:
@@ -101,9 +107,26 @@ def do_xml_video_response(context, provider, xml):
                         break
                     pass
                 pass
-
             video_item.set_fanart(provider.get_fanart(context))
 
+            context_menu = []
+
+            if provider.is_logged_in():
+                is_like = video.get('is_like', '0') == '1'
+                if is_like:
+                    like_text = context.localize(provider._local_map['vimeo.unlike'])
+                    context_menu.append(
+                        (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'unlike'])))
+                else:
+                    like_text = context.localize(provider._local_map['vimeo.like'])
+                    context_menu.append(
+                        (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'])))
+                    pass
+
+                is_watch_later = video.get('is_watch_later', '0') == '1'
+                pass
+
+            video_item.set_context_menu(context_menu)
             result.append(video_item)
             pass
 
@@ -114,7 +137,7 @@ def do_xml_video_response(context, provider, xml):
 def do_xml_contacts_response(context, provider, xml):
     result = []
     root = ET.fromstring(xml)
-    _do_xml_error(context, provider, root)
+    do_xml_error(context, provider, root)
 
     contacts = root.find('contacts')
     if contacts is not None:

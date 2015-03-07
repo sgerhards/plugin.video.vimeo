@@ -150,6 +150,24 @@ class Client():
                                         post_data=post_data)
 
 
+    def like_video(self, video_id, like=True):
+        if like:
+            like = '1'
+        else:
+            like = '0'
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.setLike',
+                     'video_id': video_id,
+                     'like': like}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+
     def get_all_contacts(self, page=1):
         if not page:
             page = 1

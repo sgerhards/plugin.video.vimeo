@@ -14,6 +14,8 @@ class Provider(kodion.AbstractProvider):
         self._local_map.update({'vimeo.my-feed': 30500,
                                 'vimeo.watch-later': 30107,
                                 'vimeo.likes': 30501,
+                                'vimeo.like': 30518,
+                                'vimeo.unlike': 30519,
                                 'vimeo.following': 30502})
 
         self._client = None
@@ -149,6 +151,17 @@ class Provider(kodion.AbstractProvider):
         video_stream = kodion.utils.find_best_fit(video_streams, _compare)
 
         return UriItem(video_stream['url'])
+
+    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/(?P<like>like|unlike)/$')
+    def _on_video_like(self, context, re_match):
+        video_id = re_match.group('video_id')
+        like = re_match.group('like') == 'like'
+
+        client = self.get_client(context)
+        helper.do_xml_error_from_string(context, self, client.like_video(video_id=video_id, like=like))
+
+        context.get_ui().refresh_container()
+        return True
 
     def on_root(self, context, re_match):
         result = []

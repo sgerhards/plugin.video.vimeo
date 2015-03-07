@@ -60,5 +60,7 @@
     <string id="30501">Likes</string>
     <string id="30502">Following</string>
 
+    <string id="30518">Like</string>
+    <string id="30519">Unlike</string>
     <string id="30520">Show channel name in description</string>
 </strings>
