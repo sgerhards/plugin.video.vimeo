@@ -56,5 +56,6 @@
     <string id="30120">Clear</string>
 
     <!-- Vimeo -->
-    <string id="30500">Featured</string>
+    <string id="30500">My Feed</string>
+    <string id="30501">Likes</string>
 </strings>
