@@ -1,4 +1,5 @@
 from resources.lib.kodion.items import VideoItem, NextPageItem
+from resources.lib.kodion.items.directory_item import DirectoryItem
 
 __author__ = 'bromix'
 
@@ -24,13 +25,25 @@ def do_xml_to_video_stream(context, provider, xml):
     return result
 
 
-def do_xml_video_response(context, provider, xml):
-    result = []
-    root = ET.fromstring(xml)
+def _do_next_page(result, xml_element, context, provider):
+    if len(result) > 0:
+        current_page = int(xml_element.get('page', '1'))
+        videos_per_page = int(xml_element.get('perpage', '1'))
+        total_videos = int(xml_element.get('total', '1'))
+        if videos_per_page * current_page < total_videos:
+            next_page_item = NextPageItem(context, current_page)
+            next_page_item.set_fanart(provider.get_fanart(context))
+            result.append(next_page_item)
+            pass
+        pass
+    pass
+    pass
 
-    status = root.get('stat')
+
+def _do_xml_error(context, provider, root_element):
+    status = root_element.get('stat')
     if status == 'fail':
-        error_item = root.find('err')
+        error_item = root_element.find('err')
         if error_item is not None:
             message = error_item.get('msg')
             explanation = error_item.get('expl')
@@ -38,6 +51,13 @@ def do_xml_video_response(context, provider, xml):
             context.get_ui().show_notification(message, time_milliseconds=15000)
             pass
         pass
+    pass
+
+
+def do_xml_video_response(context, provider, xml):
+    result = []
+    root = ET.fromstring(xml)
+    _do_xml_error(context, provider, root)
 
     videos = root.find('videos')
     if videos is not None:
@@ -87,15 +107,38 @@ def do_xml_video_response(context, provider, xml):
             result.append(video_item)
             pass
 
-        if len(result) > 0:
-            current_page = int(videos.get('page', '1'))
-            videos_per_page = int(videos.get('perpage', '1'))
-            total_videos = int(videos.get('total', '1'))
-            if videos_per_page * current_page < total_videos:
-                next_page_item = NextPageItem(context, current_page)
-                next_page_item.set_fanart(provider.get_fanart(context))
-                result.append(next_page_item)
+        _do_next_page(result, videos, context, provider)
+    return result
+
+
+def do_xml_contacts_response(context, provider, xml):
+    result = []
+    root = ET.fromstring(xml)
+    _do_xml_error(context, provider, root)
+
+    contacts = root.find('contacts')
+    if contacts is not None:
+        for contact in contacts.iter('contact'):
+            user_id = contact.get('id')
+            username = contact.get('username')
+            display_name = contact.get('display_name')
+
+            contact_item = DirectoryItem(display_name, context.create_uri(['user', user_id]))
+
+            # portraits
+            portraits = contact.find('portraits')
+            if portraits is not None:
+                for portrait in portraits.iter('portrait'):
+                    height = int(portrait.get('height', '0'))
+                    if height >= 256:
+                        contact_item.set_image(portrait.text)
+                        break
+                    pass
                 pass
+
+            contact_item.set_fanart(provider.get_fanart(context))
+            result.append(contact_item)
             pass
         pass
+
     return result

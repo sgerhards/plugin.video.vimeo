@@ -52,6 +52,24 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def get_channel_videos(self, channel_id, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.getVideos',
+                     'sort': 'newest',  # 'oldest', 'most_played', 'most_commented', 'most_liked'
+                     'page': str(page),
+                     'channel_id': channel_id,
+                     'full_response': '1'}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+
     def get_my_feed(self, page=1):
         if not page:
             page = 1
@@ -99,6 +117,39 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def get_all_channels(self, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.getAll',
+                     'page': str(page),
+                     'sort': 'alphabetical'}  # 'newest', 'oldest', 'alphabetical', 'most_videos', 'most_subscribed', 'most_recently_updated'
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_videos_of_user(self, user_id, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.getAll',
+                     'page': str(page),
+                     'user_id': str(user_id),
+                     'full_response': '1',
+                     'sort': 'newest'}  # 'oldest', 'most_played', 'most_commented', 'most_liked'
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+
     def get_all_contacts(self, page=1):
         if not page:
             page = 1
@@ -108,7 +159,7 @@ class Client():
         post_data = {'method': 'vimeo.contacts.getAll',
                      'page': str(page),
                      'sort': 'alphabetical'}
-                     #'full_response': '1'}
+        # 'full_response': '1'}
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',

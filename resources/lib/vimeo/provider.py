@@ -13,7 +13,8 @@ class Provider(kodion.AbstractProvider):
 
         self._local_map.update({'vimeo.my-feed': 30500,
                                 'vimeo.watch-later': 30107,
-                                'vimeo.likes': 30501})
+                                'vimeo.likes': 30501,
+                                'vimeo.following': 30502})
 
         self._client = None
         self._is_logged_in = False
@@ -92,8 +93,8 @@ class Provider(kodion.AbstractProvider):
 
         return result
 
-    @kodion.RegisterProviderPath('^/videos/(?P<category>(feed|likes|watch-later))/$')
-    def _on_my_stuff(self, context, re_match):
+    @kodion.RegisterProviderPath('^/my/(?P<category>(feed|likes|watch-later))/$')
+    def _on_list_videos(self, context, re_match):
         context.set_content_type(kodion.constants.content_type.EPISODES)
 
         result = []
@@ -113,6 +114,27 @@ class Provider(kodion.AbstractProvider):
         result.extend(helper.do_xml_video_response(context, self, xml))
 
         return result
+
+    @kodion.RegisterProviderPath('^/user/(?P<user_id>.+)/$')
+    def _on_user(self, context, re_match):
+        context.set_content_type(kodion.constants.content_type.EPISODES)
+
+        user_id = re_match.group('user_id')
+        page = int(context.get_param('page', '1'))
+
+        result = []
+
+        client = self.get_client(context)
+        result.extend(
+            helper.do_xml_video_response(context, self, client.get_videos_of_user(user_id=user_id, page=page)))
+        return result
+
+    @kodion.RegisterProviderPath('^/me/following/$')
+    def _on_following(self, context, re_match):
+        client = self.get_client(context)
+
+        page = int(context.get_param('page', '1'))
+        return helper.do_xml_contacts_response(context, self, client.get_all_contacts(page=page))
 
     @kodion.RegisterProviderPath('^/play/$')
     def _on_play(self, context, re_match):
@@ -136,31 +158,31 @@ class Provider(kodion.AbstractProvider):
         if self._is_logged_in:
             # my feed
             my_feed_item = DirectoryItem(context.localize(self._local_map['vimeo.my-feed']),
-                                         context.create_uri(['videos', 'feed']),
+                                         context.create_uri(['my', 'feed']),
                                          image=context.create_resource_path('media', 'new_uploads.png'))
             my_feed_item.set_fanart(self.get_fanart(context))
             result.append(my_feed_item)
 
             # Watch Later
             watch_later_item = DirectoryItem(context.localize(self._local_map['vimeo.watch-later']),
-                                             context.create_uri(['videos', 'watch-later']),
+                                             context.create_uri(['my', 'watch-later']),
                                              image=context.create_resource_path('media', 'watch_later.png'))
             watch_later_item.set_fanart(self.get_fanart(context))
             result.append(watch_later_item)
 
             # my likes
             my_likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
-                                          context.create_uri(['videos', 'likes']),
+                                          context.create_uri(['my', 'likes']),
                                           image=context.create_resource_path('media', 'likes.png'))
             my_likes_item.set_fanart(self.get_fanart(context))
             result.append(my_likes_item)
 
             # Following
-            """
-            following_item = DirectoryItem('FOLLOWING', context.create_uri(['my', 'contacts']))
+            following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
+                                           context.create_uri(['me', 'following']),
+                                           image=context.create_resource_path('media', 'channels.png'))
             following_item.set_fanart(self.get_fanart(context))
             result.append(following_item)
-            """
             pass
 
         # search
