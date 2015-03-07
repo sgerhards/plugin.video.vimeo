@@ -123,7 +123,18 @@ def do_xml_video_response(context, provider, xml):
                         (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'])))
                     pass
 
-                is_watch_later = video.get('is_watch_later', '0') == '1'
+                is_watch_later = video.get('is_watchlater', '0') == '1'
+                if is_watch_later:
+                    watch_later_text = context.localize(provider._local_map['vimeo.watch-later.remove'])
+                    context_menu.append(
+                        (watch_later_text,
+                         'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later', 'remove'])))
+                else:
+                    watch_later_text = context.localize(provider._local_map['vimeo.watch-later.add'])
+                    context_menu.append(
+                        (watch_later_text,
+                         'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later', 'add'])))
+                    pass
                 pass
 
             video_item.set_context_menu(context_menu)
