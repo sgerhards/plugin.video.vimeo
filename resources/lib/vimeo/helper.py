@@ -175,7 +175,7 @@ def do_xml_videos_response(context, provider, xml):
     return result
 
 
-def do_xml_contacts_response(context, provider, xml):
+def do_xml_user_response(context, provider, xml):
     result = []
     root = ET.fromstring(xml)
     do_xml_error(context, provider, root)
@@ -203,6 +203,9 @@ def do_xml_contacts_response(context, provider, xml):
             contact_item.set_fanart(provider.get_fanart(context))
             result.append(contact_item)
             pass
+
+        # add next page
+        _do_next_page(result, contacts, context, provider)
         pass
 
     return result

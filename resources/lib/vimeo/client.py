@@ -196,7 +196,7 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_all_contacts(self, page=1):
+    def get_all_contacts(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
@@ -205,7 +205,8 @@ class Client():
         post_data = {'method': 'vimeo.contacts.getAll',
                      'page': str(page),
                      'sort': 'alphabetical'}
-        # 'full_response': '1'}
+        if user_id:
+            post_data['user_id'] = user_id
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',

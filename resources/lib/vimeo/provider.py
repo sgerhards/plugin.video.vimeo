@@ -128,18 +128,29 @@ class Provider(kodion.AbstractProvider):
         page = int(context.get_param('page', '1'))
 
         result = []
+        # Following
+        following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
+                                       context.create_uri(['user', user_id, 'following']),
+                                       image=context.create_resource_path('media', 'channels.png'))
+        following_item.set_fanart(self.get_fanart(context))
+        result.append(following_item)
 
         client = self.get_client(context)
         result.extend(
             helper.do_xml_videos_response(context, self, client.get_videos_of_user(user_id=user_id, page=page)))
         return result
 
-    @kodion.RegisterProviderPath('^/me/following/$')
+    @kodion.RegisterProviderPath('^/user/(?P<user_id>.+)/following/$')
     def _on_following(self, context, re_match):
         client = self.get_client(context)
 
         page = int(context.get_param('page', '1'))
-        return helper.do_xml_contacts_response(context, self, client.get_all_contacts(page=page))
+        user_id = re_match.group('user_id')
+        if user_id == 'me':
+            user_id = None
+            pass
+
+        return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
 
     @kodion.RegisterProviderPath('^/play/$')
     def _on_play(self, context, re_match):
@@ -218,7 +229,7 @@ class Provider(kodion.AbstractProvider):
 
             # Following
             following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
-                                           context.create_uri(['me', 'following']),
+                                           context.create_uri(['user', 'me', 'following']),
                                            image=context.create_resource_path('media', 'channels.png'))
             following_item.set_fanart(self.get_fanart(context))
             result.append(following_item)
