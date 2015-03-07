@@ -99,6 +99,17 @@ class Provider(kodion.AbstractProvider):
 
         return result
 
+    # LIST: VIDEO OF A CHANNEL
+    @kodion.RegisterProviderPath('^/channel/(?P<channel_id>\d+)/$')
+    def _on_channel(self, context, re_match):
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
+
+        page = int(context.get_param('page', '1'))
+        channel_id = re_match.group('channel_id')
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_channel_videos(channel_id=channel_id, page=page))
+
+    # LIST: MY FEEDs
     @kodion.RegisterProviderPath('^/user/me/feed/$')
     def _on_me_feed(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
