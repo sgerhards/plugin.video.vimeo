@@ -204,7 +204,7 @@ class Provider(kodion.AbstractProvider):
             pass
 
         client = self.get_client(context)
-        return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
+        return helper.do_xml_user_response(context, self, client.get_contacts(user_id=user_id, page=page))
 
     # LIST: VIDEO OF ALBUM
     @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/album\/(?P<album_id>\d+)/$')

@@ -1,5 +1,6 @@
-4.0.1~alpha2 (2015-03-07)
-ADD: list likes, follower and channels of a user
+4.0.1~beta1 (2015-03-08)
+ADD: Go to <user>
+ADD: likes, follower, channels, albums, groups
 ADD: full watch later support
 ADD: full like support
 UPD: icons (thx 2 freeman212)

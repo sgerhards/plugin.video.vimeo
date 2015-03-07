@@ -41,7 +41,7 @@ class TestClient(unittest.TestCase):
 
     def test_get_all_contacts(self):
         client = self.get_client()
-        data = client.get_all_contacts()
+        data = client.get_contacts()
         pass
 
     def test_login(self):

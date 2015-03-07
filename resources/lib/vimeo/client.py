@@ -297,8 +297,7 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-
-    def get_all_contacts(self, user_id=None, page=1):
+    def get_contacts(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
