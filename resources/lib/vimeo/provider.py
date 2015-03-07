@@ -18,7 +18,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.unlike': 30519,
                                 'vimeo.following': 30502,
                                 'vimeo.watch-later.add': 30516,
-                                'vimeo.watch-later.remove': 30517})
+                                'vimeo.watch-later.remove': 30517,
+                                'vimeo.sign-in': 30111})
 
         self._client = None
         self._is_logged_in = False
@@ -180,6 +181,11 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
+    @kodion.RegisterProviderPath('^/sign/in/$')
+    def _on_sign_in(self, context, re_match):
+        context.get_ui().open_settings()
+        return True
+
     def on_root(self, context, re_match):
         result = []
 
@@ -219,6 +225,15 @@ class Provider(kodion.AbstractProvider):
         search_item = kodion.items.SearchItem(context, image=context.create_resource_path('media', 'search.png'),
                                               fanart=self.get_fanart(context))
         result.append(search_item)
+
+        # sign in
+        if not self._is_logged_in:
+            sign_in_item = DirectoryItem(context.localize(self._local_map['vimeo.sign-in']),
+                                         context.create_uri(['sign', 'in']),
+                                         image=context.create_resource_path('media', 'sign_in.png'))
+            sign_in_item.set_fanart(self.get_fanart(context))
+            result.append(sign_in_item)
+            pass
 
         return result
 
