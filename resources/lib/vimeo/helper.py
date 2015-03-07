@@ -79,6 +79,22 @@ def do_xml_video_response(context, provider, xml):
                 channel_name = owner.get('username', '')
                 pass
 
+            upload_date = video.find('upload_date')
+            if upload_date is not None and upload_date.text is not None:
+                upload_date = upload_date.text
+                upload_date = upload_date.split(' ')
+                if len(upload_date) == 2:
+                    date = upload_date[0].split('-')
+                    time = upload_date[1].split(':')
+                    if len(date) == 3 and len(time) == 3:
+                        video_item.set_date(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]),
+                                            int(time[2]))
+                        video_item.set_aired(int(date[0]), int(date[1]), int(date[2]))
+                        video_item.set_premiered(int(date[0]), int(date[1]), int(date[2]))
+                        pass
+                    pass
+                pass
+
             # plot
             plot = video.find('description').text
             if plot is None:
