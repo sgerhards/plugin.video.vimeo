@@ -46,11 +46,24 @@ def do_xml_video_response(context, provider, xml):
             title = video.find('title').text
             video_item = VideoItem(title, context.create_uri(['play'], {'video_id': video_id}))
 
+            # channel name
+            channel_name = ''
+            owner = video.find('owner')
+            if owner is not None:
+                channel_name = owner.get('username', '')
+                pass
+
             # plot
             plot = video.find('description').text
-            if plot is not None:
-                video_item.set_plot(plot)
+            if plot is None:
+                plot = ''
                 pass
+
+            settings = context.get_settings()
+            if channel_name and settings.get_bool('vimeo.view.description.show_channel_name', True):
+                plot = '[UPPERCASE][B]%s[/B][/UPPERCASE][CR][CR]%s' % (channel_name, plot)
+                pass
+            video_item.set_plot(plot)
 
             # duration
             duration = int(video.find('duration', '0').text)

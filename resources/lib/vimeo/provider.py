@@ -92,7 +92,7 @@ class Provider(kodion.AbstractProvider):
 
         return result
 
-    @kodion.RegisterProviderPath('^/my/(?P<category>(feed|likes|watch-later))/$')
+    @kodion.RegisterProviderPath('^/videos/(?P<category>(feed|likes|watch-later))/$')
     def _on_my_stuff(self, context, re_match):
         context.set_content_type(kodion.constants.content_type.EPISODES)
 
@@ -136,21 +136,21 @@ class Provider(kodion.AbstractProvider):
         if self._is_logged_in:
             # my feed
             my_feed_item = DirectoryItem(context.localize(self._local_map['vimeo.my-feed']),
-                                         context.create_uri(['my', 'feed']),
+                                         context.create_uri(['videos', 'feed']),
                                          image=context.create_resource_path('media', 'new_uploads.png'))
             my_feed_item.set_fanart(self.get_fanart(context))
             result.append(my_feed_item)
 
             # Watch Later
             watch_later_item = DirectoryItem(context.localize(self._local_map['vimeo.watch-later']),
-                                             context.create_uri(['my', 'watch-later']),
+                                             context.create_uri(['videos', 'watch-later']),
                                              image=context.create_resource_path('media', 'watch_later.png'))
             watch_later_item.set_fanart(self.get_fanart(context))
             result.append(watch_later_item)
 
             # my likes
             my_likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
-                                          context.create_uri(['my', 'likes']),
+                                          context.create_uri(['videos', 'likes']),
                                           image=context.create_resource_path('media', 'likes.png'))
             my_likes_item.set_fanart(self.get_fanart(context))
             result.append(my_likes_item)

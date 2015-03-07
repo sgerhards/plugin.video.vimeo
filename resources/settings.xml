@@ -16,7 +16,8 @@
     </category>
 
     <category label="30031">
-        <setting id="kodion.support.alternative_player" type="bool" label="30036" default="false"/>
+        <!--setting id="kodion.support.alternative_player" type="bool" label="30036" default="false"/-->
+        <setting id="vimeo.view.description.show_channel_name" type="bool" label="30520" default="true"/>
         <setting type="sep" />
         <setting id="kodion.view.override" type="bool" label="30026" default="false"/>
         <setting id="kodion.view.default" type="number" label="30027" enable="eq(-1,true)" default="50"/>
