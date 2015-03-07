@@ -175,6 +175,35 @@ def do_xml_videos_response(context, provider, xml):
     return result
 
 
+def do_xml_channel_response(context, provider, channel):
+    if isinstance(channel, basestring):
+        channel = ET.fromstring(channel)
+        do_xml_error(context, provider, channel)
+        channel = channel.find('video')
+        pass
+
+    channel_id = channel.get('id')
+    channel_name = channel.find('name').text
+    image = channel.find('logo_url').text
+
+    return DirectoryItem(channel_name, context.create_uri(['channel', channel_id]), image=image)
+
+
+def do_xml_channels_response(context, provider, xml):
+    result = []
+    root = ET.fromstring(xml)
+    do_xml_error(context, provider, root)
+
+    channels = root.find('channels')
+    if channels is not None:
+        for channel in channels.iter('channel'):
+            result.append(do_xml_channel_response(context, provider, channel))
+            pass
+
+        _do_next_page(result, channels, context, provider)
+    return result
+
+
 def do_xml_user_response(context, provider, xml):
     result = []
     root = ET.fromstring(xml)

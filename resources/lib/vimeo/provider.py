@@ -174,7 +174,7 @@ class Provider(kodion.AbstractProvider):
             pass
 
         client = self.get_client(context)
-        return helper.do_xml_user_response(context, self, client.get_channels(user_id=user_id, page=page))
+        return helper.do_xml_channels_response(context, self, client.get_channels(user_id=user_id, page=page))
 
     # LIST: LIKES
     @kodion.RegisterProviderPath('^/user/(?P<user_id>me|\d+)/likes/$')
