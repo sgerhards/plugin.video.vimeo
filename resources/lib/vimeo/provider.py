@@ -20,7 +20,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.watch-later.add': 30516,
                                 'vimeo.watch-later.remove': 30517,
                                 'vimeo.sign-in': 30111,
-                                'vimeo.channels': 30503})
+                                'vimeo.channels': 30503,
+                                'vimeo.groups': 30504})
 
         self._client = None
         self._is_logged_in = False
@@ -109,6 +110,16 @@ class Provider(kodion.AbstractProvider):
         client = self.get_client(context)
         return helper.do_xml_videos_response(context, self, client.get_channel_videos(channel_id=channel_id, page=page))
 
+    # LIST: VIDEO OF A GROUP
+    @kodion.RegisterProviderPath('^/group/(?P<group_id>\d+)/$')
+    def _on_group(self, context, re_match):
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
+
+        page = int(context.get_param('page', '1'))
+        group_id = re_match.group('group_id')
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_group_videos(group_id=group_id, page=page))
+
     # LIST: MY FEEDs
     @kodion.RegisterProviderPath('^/user/me/feed/$')
     def _on_me_feed(self, context, re_match):
@@ -150,6 +161,13 @@ class Provider(kodion.AbstractProvider):
             following_item.set_fanart(self.get_fanart(context))
             result.append(following_item)
 
+            # Groups
+            groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
+                                           context.create_uri(['user', user_id, 'groups']),
+                                           image=context.create_resource_path('media', 'channels.png'))
+            groups_item.set_fanart(self.get_fanart(context))
+            result.append(groups_item)
+
             # Channels
             channels_item = DirectoryItem(context.localize(self._local_map['vimeo.channels']),
                                            context.create_uri(['user', user_id, 'channels']),
@@ -174,6 +192,18 @@ class Provider(kodion.AbstractProvider):
 
         client = self.get_client(context)
         return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
+
+    # LIST: GROUPS
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/groups\/$')
+    def _on_user_groups(self, context, re_match):
+        page = int(context.get_param('page', '1'))
+        user_id = re_match.group('user_id')
+        if user_id == 'me':
+            user_id = None
+            pass
+
+        client = self.get_client(context)
+        return helper.do_xml_groups_response(context, self, client.get_groups(user_id=user_id, page=page))
 
     # LIST: CHANNELS
     @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/channels\/$')
@@ -218,10 +248,10 @@ class Provider(kodion.AbstractProvider):
         video_item.set_uri(video_stream['url'])
         return video_item
 
-    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/(?P<like>like|unlike)/$')
+    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/like/$')
     def _on_video_like(self, context, re_match):
         video_id = re_match.group('video_id')
-        like = re_match.group('like') == 'like'
+        like = context.get_param('like', '0') == '1'
 
         client = self.get_client(context)
         helper.do_xml_error(context, self, client.like_video(video_id=video_id, like=like))
@@ -229,17 +259,13 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
-    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/watch-later/(?P<method>add|remove)/$')
+    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/watch-later/$')
     def _on_video_watch_later(self, context, re_match):
         video_id = re_match.group('video_id')
-        method = re_match.group('method')
+        later = context.get_param('later', '0') == '1'
 
         client = self.get_client(context)
-        if method == 'add':
-            helper.do_xml_error(context, self, client.add_video_to_watch_later(video_id=video_id))
-        elif method == 'remove':
-            helper.do_xml_error(context, self, client.remove_video_from_watch_later(video_id=video_id))
-            pass
+        helper.do_xml_error(context, self, client.watch_video_later(video_id=video_id, later=later))
 
         context.get_ui().refresh_container()
         return True
@@ -275,6 +301,13 @@ class Provider(kodion.AbstractProvider):
                                           image=context.create_resource_path('media', 'likes.png'))
             likes_item.set_fanart(self.get_fanart(context))
             result.append(likes_item)
+
+            # Groups
+            groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
+                                           context.create_uri(['user', 'me', 'groups']),
+                                           image=context.create_resource_path('media', 'channels.png'))
+            groups_item.set_fanart(self.get_fanart(context))
+            result.append(groups_item)
 
             # Following
             following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),

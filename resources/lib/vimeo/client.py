@@ -73,6 +73,39 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def get_groups(self, user_id, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.groups.getAll',
+                     'sort': 'newest',  # 'oldest', 'most_played', 'most_commented', 'most_liked'
+                     'page': str(page)}
+        if user_id:
+            post_data['user_id'] = user_id
+            pass
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_group_videos(self, group_id, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.groups.getVideos',
+                     'sort': 'newest',  # 'oldest', 'most_played', 'most_commented', 'most_liked'
+                     'group_id': group_id,
+                     'page': str(page),
+                     'full_response': '1'}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
 
     def get_my_feed(self, page=1):
         if not page:
@@ -187,20 +220,14 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def add_video_to_watch_later(self, video_id):
+    def watch_video_later(self, video_id, later=True):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'method': 'vimeo.albums.addToWatchLater',
-                     'video_id': video_id}
-
-        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
-                                        method='POST',
-                                        headers=headers,
-                                        post_data=post_data)
-
-    def remove_video_from_watch_later(self, video_id):
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'method': 'vimeo.albums.removeFromWatchLater',
-                     'video_id': video_id}
+        post_data = {'video_id': video_id}
+        if later:
+            post_data['method'] = 'vimeo.albums.addToWatchLater'
+        else:
+            post_data['method'] = 'vimeo.albums.removeFromWatchLater'
+            pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',

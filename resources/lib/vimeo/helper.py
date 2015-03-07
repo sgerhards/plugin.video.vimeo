@@ -134,11 +134,11 @@ def do_xml_video_response(context, provider, video_xml):
         if is_like:
             like_text = context.localize(provider._local_map['vimeo.unlike'])
             context_menu.append(
-                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'unlike'])))
+                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'], {'like': '0'})))
         else:
             like_text = context.localize(provider._local_map['vimeo.like'])
             context_menu.append(
-                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'])))
+                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'], {'like': '1'})))
             pass
 
         # watch later
@@ -147,12 +147,12 @@ def do_xml_video_response(context, provider, video_xml):
             watch_later_text = context.localize(provider._local_map['vimeo.watch-later.remove'])
             context_menu.append(
                 (watch_later_text,
-                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later', 'remove'])))
+                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '0'})))
         else:
             watch_later_text = context.localize(provider._local_map['vimeo.watch-later.add'])
             context_menu.append(
                 (watch_later_text,
-                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later', 'add'])))
+                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '1'})))
             pass
         pass
 
@@ -201,6 +201,49 @@ def do_xml_channels_response(context, provider, xml):
             pass
 
         _do_next_page(result, channels, context, provider)
+    return result
+
+
+def do_xml_group_response(context, provider, group):
+    if isinstance(group, basestring):
+        group = ET.fromstring(group)
+        do_xml_error(context, provider, group)
+        group = group.find('video')
+        pass
+
+    group_id = group.get('id')
+    group_name = group.find('name').text
+    has_joined = group.get('has_joined', '0') == '1'
+    if not has_joined:
+        group_name = '[I]%s[/I]' % group_name
+        pass
+
+    logo_url = group.find('logo_url')
+    image = ''
+    if logo_url is not None:
+        image = logo_url.text
+    else:
+        thumbnail_url = group.find('thumbnail_url')
+        if thumbnail_url is not None:
+            image = thumbnail_url.text.replace('200x150', '400x300')
+            pass
+        pass
+
+    return DirectoryItem(group_name, context.create_uri(['group', group_id]), image=image)
+
+
+def do_xml_groups_response(context, provider, xml):
+    result = []
+    root = ET.fromstring(xml)
+    do_xml_error(context, provider, root)
+
+    groups = root.find('groups')
+    if groups is not None:
+        for group in groups.iter('group'):
+            result.append(do_xml_group_response(context, provider, group))
+            pass
+
+        _do_next_page(result, groups, context, provider)
     return result
 
 
