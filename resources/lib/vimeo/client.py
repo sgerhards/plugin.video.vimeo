@@ -79,7 +79,7 @@ class Client():
             pass
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'method': 'vimeo.groups.getAll',
+        post_data = {'method': 'vimeo.groups.getAddable',
                      'sort': 'newest',  # 'oldest', 'most_played', 'most_commented', 'most_liked'
                      'page': str(page)}
         if user_id:
@@ -227,6 +227,34 @@ class Client():
             post_data['method'] = 'vimeo.albums.addToWatchLater'
         else:
             post_data['method'] = 'vimeo.albums.removeFromWatchLater'
+            pass
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def join_group(self, group_id, join=True):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'group_id': group_id}
+        if join:
+            post_data['method'] = 'vimeo.groups.join'
+        else:
+            post_data['method'] = 'vimeo.groups.leave'
+            pass
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def subscribe_channel(self, channel_id, subscribe=True):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'channel_id': channel_id}
+        if subscribe:
+            post_data['method'] = 'vimeo.channels.subscribe'
+        else:
+            post_data['method'] = 'vimeo.channels.unsubscribe'
             pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',

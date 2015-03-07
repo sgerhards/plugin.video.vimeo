@@ -184,9 +184,41 @@ def do_xml_channel_response(context, provider, channel):
 
     channel_id = channel.get('id')
     channel_name = channel.find('name').text
-    image = channel.find('logo_url').text
+    is_subscribed = channel.get('is_subscribed', '0') == '1'
+    if provider.is_logged_in() and not is_subscribed:
+        channel_name = '[I]%s[/I]' % channel_name
+        pass
 
-    return DirectoryItem(channel_name, context.create_uri(['channel', channel_id]), image=image)
+    image = ''
+    logo_url = channel.find('logo_url')
+    if logo_url is not None and logo_url.text:
+        image = logo_url.text
+    else:
+        thumbnail_url = channel.find('thumbnail_url')
+        if thumbnail_url is not None:
+            image = thumbnail_url.text.replace('200x150', '400x300')
+            pass
+        pass
+
+    channel_item = DirectoryItem(channel_name, context.create_uri(['channel', channel_id]), image=image)
+
+    # context menu
+    context_menu = []
+    if provider.is_logged_in():
+        # join/leave
+        if is_subscribed:
+            text = context.localize(provider._local_map['vimeo.channel.unfollow'])
+            context_menu.append(
+                (text, 'RunPlugin(%s)' % context.create_uri(['channel', channel_id, 'subscribe'], {'subscribe': '0'})))
+        else:
+            text = context.localize(provider._local_map['vimeo.channel.follow'])
+            context_menu.append(
+                (text, 'RunPlugin(%s)' % context.create_uri(['channel', channel_id, 'subscribe'], {'subscribe': '1'})))
+            pass
+        pass
+    channel_item.set_context_menu(context_menu)
+
+    return channel_item
 
 
 def do_xml_channels_response(context, provider, xml):
@@ -214,13 +246,13 @@ def do_xml_group_response(context, provider, group):
     group_id = group.get('id')
     group_name = group.find('name').text
     has_joined = group.get('has_joined', '0') == '1'
-    if not has_joined:
+    if provider.is_logged_in() and not has_joined:
         group_name = '[I]%s[/I]' % group_name
         pass
 
     logo_url = group.find('logo_url')
     image = ''
-    if logo_url is not None:
+    if logo_url is not None and logo_url.text:
         image = logo_url.text
     else:
         thumbnail_url = group.find('thumbnail_url')
@@ -229,7 +261,25 @@ def do_xml_group_response(context, provider, group):
             pass
         pass
 
-    return DirectoryItem(group_name, context.create_uri(['group', group_id]), image=image)
+    group_item = DirectoryItem(group_name, context.create_uri(['group', group_id]), image=image)
+
+    # context menu
+    context_menu = []
+    if provider.is_logged_in():
+        # join/leave
+        if has_joined:
+            leave_text = context.localize(provider._local_map['vimeo.group.leave'])
+            context_menu.append(
+                (leave_text, 'RunPlugin(%s)' % context.create_uri(['group', group_id, 'join'], {'join': '0'})))
+        else:
+            join_text = context.localize(provider._local_map['vimeo.group.join'])
+            context_menu.append(
+                (join_text, 'RunPlugin(%s)' % context.create_uri(['group', group_id, 'join'], {'join': '1'})))
+            pass
+        pass
+    group_item.set_context_menu(context_menu)
+
+    return group_item
 
 
 def do_xml_groups_response(context, provider, xml):

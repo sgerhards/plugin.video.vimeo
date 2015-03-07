@@ -21,7 +21,11 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.watch-later.remove': 30517,
                                 'vimeo.sign-in': 30111,
                                 'vimeo.channels': 30503,
-                                'vimeo.groups': 30504})
+                                'vimeo.groups': 30504,
+                                'vimeo.group.join': 30514,
+                                'vimeo.group.leave': 30515,
+                                'vimeo.channel.follow': 30512,
+                                'vimeo.channel.unfollow': 30513})
 
         self._client = None
         self._is_logged_in = False
@@ -259,6 +263,28 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
+    @kodion.RegisterProviderPath('^/group/(?P<group_id>.+)/join/$')
+    def _on_group_join(self, context, re_match):
+        group_id = re_match.group('group_id')
+        join = context.get_param('join', '0') == '1'
+
+        client = self.get_client(context)
+        helper.do_xml_error(context, self, client.join_group(group_id=group_id, join=join))
+
+        context.get_ui().refresh_container()
+        return True
+
+    @kodion.RegisterProviderPath('^/channel/(?P<channel_id>.+)/subscribe/$')
+    def _on_channel_subscribe(self, context, re_match):
+        channel_id = re_match.group('channel_id')
+        subscribe = context.get_param('subscribe', '0') == '1'
+
+        client = self.get_client(context)
+        helper.do_xml_error(context, self, client.subscribe_channel(channel_id=channel_id, subscribe=subscribe))
+
+        context.get_ui().refresh_container()
+        return True
+
     @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/watch-later/$')
     def _on_video_watch_later(self, context, re_match):
         video_id = re_match.group('video_id')
@@ -301,6 +327,13 @@ class Provider(kodion.AbstractProvider):
                                           image=context.create_resource_path('media', 'likes.png'))
             likes_item.set_fanart(self.get_fanart(context))
             result.append(likes_item)
+
+            # Channels
+            channels_item = DirectoryItem(context.localize(self._local_map['vimeo.channels']),
+                                           context.create_uri(['user', 'me', 'channels']),
+                                           image=context.create_resource_path('media', 'channels.png'))
+            channels_item.set_fanart(self.get_fanart(context))
+            result.append(channels_item)
 
             # Groups
             groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),

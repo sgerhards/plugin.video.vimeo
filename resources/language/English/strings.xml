@@ -62,6 +62,10 @@
     <string id="30503">Channels</string>
     <string id="30504">Groups</string>
 
+    <string id="30512">Follow</string>
+    <string id="30513">Unfollow</string>
+    <string id="30514">Join</string>
+    <string id="30515">Leave</string>
     <string id="30516">Add to [B]Watch Later[/B]</string>
     <string id="30517">Remove from [B]Watch Later[/B]</string>
     <string id="30518">Like</string>
