@@ -201,7 +201,8 @@ class Client():
             pass
         _headers = {
             'User-Agent': 'VimeoAndroid/1.1.42 (Android ver=4.4.2 sdk=19; Model samsung GT-I9505; Linux 3.4.0-3423977 armv7l)',
-            'Host': 'vimeo.com'}
+            'Host': 'vimeo.com',
+            'Accept-Encoding': 'gzip, deflate'}
         _headers.update(headers)
         oauth_parms = post_data or params
         _headers.update(self._create_authorization(url, method, oauth_parms))
