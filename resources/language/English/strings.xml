@@ -61,7 +61,9 @@
     <string id="30502">Following</string>
     <string id="30503">Channels</string>
     <string id="30504">Groups</string>
+    <string id="30505">Albums</string>
 
+    <string id="30511">Go to %s</string>
     <string id="30512">Follow</string>
     <string id="30513">Unfollow</string>
     <string id="30514">Join</string>

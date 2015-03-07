@@ -262,6 +262,42 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def get_albums(self, user_id=None, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.albums.getAll',
+                     'page': str(page),
+                     'sort': 'alphabetical'}
+        if user_id and user_id != 'me':
+            post_data['user_id'] = user_id
+            pass
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_album_videos(self, album_id, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.albums.getVideos',
+                     'page': str(page),
+                     'full_response': '1',
+                     'album_id': album_id,
+                     'sort': 'newest'}
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+
     def get_all_contacts(self, user_id=None, page=1):
         if not page:
             page = 1

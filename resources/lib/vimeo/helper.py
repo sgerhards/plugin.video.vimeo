@@ -28,9 +28,9 @@ def do_xml_to_video_stream(context, provider, xml):
 def _do_next_page(result, xml_element, context, provider):
     if len(result) > 0:
         current_page = int(xml_element.get('page', '1'))
-        videos_per_page = int(xml_element.get('perpage', '1'))
-        total_videos = int(xml_element.get('total', '1'))
-        if videos_per_page * current_page < total_videos:
+        items_per_page = int(xml_element.get('perpage', '1'))
+        total_items = int(xml_element.get('total', '1'))
+        if items_per_page * current_page < total_items:
             next_page_item = NextPageItem(context, current_page)
             next_page_item.set_fanart(provider.get_fanart(context))
             result.append(next_page_item)
@@ -156,6 +156,15 @@ def do_xml_video_response(context, provider, video_xml):
             pass
         pass
 
+    # Go to user
+    owner = video_xml.find('owner')
+    if owner is not None:
+        owner_name = owner.get('display_name')
+        owner_id = owner.get('id')
+        context_menu.append((context.localize(provider._local_map['vimeo.user.go-to']) % '[B]'+owner_name+'[/B]',
+                            'Container.Update(%s)' % context.create_uri(['user', owner_id])))
+        pass
+
     video_item.set_context_menu(context_menu)
     return video_item
 
@@ -233,6 +242,48 @@ def do_xml_channels_response(context, provider, xml):
             pass
 
         _do_next_page(result, channels, context, provider)
+    return result
+
+
+def do_xml_album_response(user_id, context, provider, album):
+    if isinstance(album, basestring):
+        album = ET.fromstring(album)
+        do_xml_error(context, provider, album)
+        album = album.find('album')
+        pass
+
+    album_id = album.get('id')
+    album_name = album.find('title').text
+
+    album_item = DirectoryItem(album_name, context.create_uri(['user', user_id, 'album', album_id]))
+
+    thumbnail_video = album.find('thumbnail_video')
+    if thumbnail_video is not None:
+        thumbnails = thumbnail_video.find('thumbnails')
+        if thumbnails is not None:
+            for thumbnail in thumbnails.iter('thumbnail'):
+                height = int(thumbnail.get('height', '0'))
+                if height >= 360:
+                    album_item.set_image(thumbnail.text)
+                    break
+                pass
+            pass
+        pass
+    return album_item
+
+
+def do_xml_albums_response(user_id, context, provider, xml):
+    result = []
+    root = ET.fromstring(xml)
+    do_xml_error(context, provider, root)
+
+    albums = root.find('albums')
+    if albums is not None:
+        for album in albums.iter('album'):
+            result.append(do_xml_album_response(user_id, context, provider, album))
+            pass
+
+        _do_next_page(result, albums, context, provider)
     return result
 
 

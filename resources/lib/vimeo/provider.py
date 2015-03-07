@@ -25,7 +25,9 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.group.join': 30514,
                                 'vimeo.group.leave': 30515,
                                 'vimeo.channel.follow': 30512,
-                                'vimeo.channel.unfollow': 30513})
+                                'vimeo.channel.unfollow': 30513,
+                                'vimeo.albums': 30505,
+                                'vimeo.user.go-to': 30511})
 
         self._client = None
         self._is_logged_in = False
@@ -153,8 +155,8 @@ class Provider(kodion.AbstractProvider):
         if page == 1:
             # Likes
             likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
-                                          context.create_uri(['user', user_id, 'likes']),
-                                          image=context.create_resource_path('media', 'likes.png'))
+                                       context.create_uri(['user', user_id, 'likes']),
+                                       image=context.create_resource_path('media', 'likes.png'))
             likes_item.set_fanart(self.get_fanart(context))
             result.append(likes_item)
 
@@ -167,17 +169,24 @@ class Provider(kodion.AbstractProvider):
 
             # Groups
             groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
-                                           context.create_uri(['user', user_id, 'groups']),
-                                           image=context.create_resource_path('media', 'channels.png'))
+                                        context.create_uri(['user', user_id, 'groups']),
+                                        image=context.create_resource_path('media', 'channels.png'))
             groups_item.set_fanart(self.get_fanart(context))
             result.append(groups_item)
 
             # Channels
             channels_item = DirectoryItem(context.localize(self._local_map['vimeo.channels']),
-                                           context.create_uri(['user', user_id, 'channels']),
-                                           image=context.create_resource_path('media', 'channels.png'))
+                                          context.create_uri(['user', user_id, 'channels']),
+                                          image=context.create_resource_path('media', 'channels.png'))
             channels_item.set_fanart(self.get_fanart(context))
             result.append(channels_item)
+
+            # Albums
+            albums_item = DirectoryItem(context.localize(self._local_map['vimeo.albums']),
+                                        context.create_uri(['user', user_id, 'albums']),
+                                        image=context.create_resource_path('media', 'channels.png'))
+            albums_item.set_fanart(self.get_fanart(context))
+            result.append(albums_item)
             pass
 
         client = self.get_client(context)
@@ -196,6 +205,25 @@ class Provider(kodion.AbstractProvider):
 
         client = self.get_client(context)
         return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
+
+    # LIST: VIDEO OF ALBUM
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/album\/(?P<album_id>\d+)/$')
+    def _on_user_albums_videos(self, context, re_match):
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
+
+        page = int(context.get_param('page', '1'))
+        user_id = re_match.group('user_id')
+        album_id = re_match.group('album_id')
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_album_videos(album_id=album_id, page=page))
+
+    # LIST: ALBUMS
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/albums\/$')
+    def _on_user_albums(self, context, re_match):
+        page = int(context.get_param('page', '1'))
+        user_id = re_match.group('user_id')
+        client = self.get_client(context)
+        return helper.do_xml_albums_response(user_id, context, self, client.get_albums(user_id=user_id, page=page))
 
     # LIST: GROUPS
     @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/groups\/$')
@@ -309,8 +337,8 @@ class Provider(kodion.AbstractProvider):
         if self._is_logged_in:
             # my feed
             feed_item = DirectoryItem(context.localize(self._local_map['vimeo.my-feed']),
-                                         context.create_uri(['user', 'me', 'feed']),
-                                         image=context.create_resource_path('media', 'new_uploads.png'))
+                                      context.create_uri(['user', 'me', 'feed']),
+                                      image=context.create_resource_path('media', 'new_uploads.png'))
             feed_item.set_fanart(self.get_fanart(context))
             result.append(feed_item)
 
@@ -322,23 +350,23 @@ class Provider(kodion.AbstractProvider):
             result.append(watch_later_item)
 
             # my likes
-            likes_item= DirectoryItem(context.localize(self._local_map['vimeo.likes']),
-                                          context.create_uri(['user', 'me', 'likes']),
-                                          image=context.create_resource_path('media', 'likes.png'))
+            likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
+                                       context.create_uri(['user', 'me', 'likes']),
+                                       image=context.create_resource_path('media', 'likes.png'))
             likes_item.set_fanart(self.get_fanart(context))
             result.append(likes_item)
 
             # Channels
             channels_item = DirectoryItem(context.localize(self._local_map['vimeo.channels']),
-                                           context.create_uri(['user', 'me', 'channels']),
-                                           image=context.create_resource_path('media', 'channels.png'))
+                                          context.create_uri(['user', 'me', 'channels']),
+                                          image=context.create_resource_path('media', 'channels.png'))
             channels_item.set_fanart(self.get_fanart(context))
             result.append(channels_item)
 
             # Groups
             groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
-                                           context.create_uri(['user', 'me', 'groups']),
-                                           image=context.create_resource_path('media', 'channels.png'))
+                                        context.create_uri(['user', 'me', 'groups']),
+                                        image=context.create_resource_path('media', 'channels.png'))
             groups_item.set_fanart(self.get_fanart(context))
             result.append(groups_item)
 
@@ -348,6 +376,13 @@ class Provider(kodion.AbstractProvider):
                                            image=context.create_resource_path('media', 'channels.png'))
             following_item.set_fanart(self.get_fanart(context))
             result.append(following_item)
+
+            # Albums
+            albums_item = DirectoryItem(context.localize(self._local_map['vimeo.albums']),
+                                        context.create_uri(['user', 'me', 'albums']),
+                                        image=context.create_resource_path('media', 'channels.png'))
+            albums_item.set_fanart(self.get_fanart(context))
+            result.append(albums_item)
             pass
 
         # search
