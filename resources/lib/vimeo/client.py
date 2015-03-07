@@ -9,6 +9,10 @@ from hashlib import sha1
 
 from resources.lib.kodion import simple_requests as requests
 
+"""
+video_sort_kind: 'newest', 'oldest', 'most_played', 'most_commented', 'most_liked'
+"""
+
 
 class Client():
     CONSUMER_KEY = 'ae4ac83f9facda375a72fed704a3643a'
@@ -86,16 +90,20 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_my_likes(self, page=1):
+    def get_video_likes(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        # video_sort_kind: 'newest', 'oldest', 'most_played', 'most_commented', 'most_liked'
         post_data = {'method': 'vimeo.videos.getLikes',
-                     'sort': 'most_liked',
+                     'sort': 'newest',
                      'page': str(page),
                      'full_response': '1'}
+        if user_id:
+            post_data['user_id'] = user_id
+            pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
@@ -127,7 +135,7 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_all_channels(self, page=1):
+    def get_channels(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
@@ -136,6 +144,9 @@ class Client():
         post_data = {'method': 'vimeo.channels.getAll',
                      'page': str(page),
                      'sort': 'alphabetical'}  # 'newest', 'oldest', 'alphabetical', 'most_videos', 'most_subscribed', 'most_recently_updated'
+        if user_id:
+            post_data['user_id'] = user_id
+            pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
@@ -207,6 +218,7 @@ class Client():
                      'sort': 'alphabetical'}
         if user_id:
             post_data['user_id'] = user_id
+            pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',

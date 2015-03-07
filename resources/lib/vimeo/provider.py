@@ -19,7 +19,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.following': 30502,
                                 'vimeo.watch-later.add': 30516,
                                 'vimeo.watch-later.remove': 30517,
-                                'vimeo.sign-in': 30111})
+                                'vimeo.sign-in': 30111,
+                                'vimeo.channels': 30503})
 
         self._client = None
         self._is_logged_in = False
@@ -98,29 +99,24 @@ class Provider(kodion.AbstractProvider):
 
         return result
 
-    @kodion.RegisterProviderPath('^/my/(?P<category>(feed|likes|watch-later))/$')
-    def _on_list_videos(self, context, re_match):
+    @kodion.RegisterProviderPath('^/user/me/feed/$')
+    def _on_me_feed(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
-        result = []
-
-        client = self.get_client(context)
         page = int(context.get_param('page', '1'))
-        category = re_match.group('category')
-        xml = ''
-        if category == 'feed':
-            xml = client.get_my_feed(page=page)
-        elif category == 'likes':
-            xml = client.get_my_likes(page=page)
-        elif category == 'watch-later':
-            xml = client.get_watch_later(page=page)
-            pass
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_my_feed(page=page))
 
-        result.extend(helper.do_xml_videos_response(context, self, xml))
+    # LIST: WATCH LATER
+    @kodion.RegisterProviderPath('^/user/me/watch-later/$')
+    def _on_me_watch_later(self, context, re_match):
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
-        return result
+        page = int(context.get_param('page', '1'))
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_watch_later(page=page))
 
-    @kodion.RegisterProviderPath('^/user/(?P<user_id>.+)/$')
+    @kodion.RegisterProviderPath('^/user/(?P<user_id>me|\d+)/$')
     def _on_user(self, context, re_match):
         context.set_content_type(kodion.constants.content_type.EPISODES)
 
@@ -128,21 +124,62 @@ class Provider(kodion.AbstractProvider):
         page = int(context.get_param('page', '1'))
 
         result = []
-        # Following
-        following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
-                                       context.create_uri(['user', user_id, 'following']),
-                                       image=context.create_resource_path('media', 'channels.png'))
-        following_item.set_fanart(self.get_fanart(context))
-        result.append(following_item)
+        if page == 1:
+            # Likes
+            likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
+                                          context.create_uri(['user', user_id, 'likes']),
+                                          image=context.create_resource_path('media', 'likes.png'))
+            likes_item.set_fanart(self.get_fanart(context))
+            result.append(likes_item)
+
+            # Following
+            following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
+                                           context.create_uri(['user', user_id, 'following']),
+                                           image=context.create_resource_path('media', 'channels.png'))
+            following_item.set_fanart(self.get_fanart(context))
+            result.append(following_item)
+
+            # Channels
+            channels_item = DirectoryItem(context.localize(self._local_map['vimeo.channels']),
+                                           context.create_uri(['user', user_id, 'channels']),
+                                           image=context.create_resource_path('media', 'channels.png'))
+            channels_item.set_fanart(self.get_fanart(context))
+            result.append(channels_item)
+            pass
 
         client = self.get_client(context)
         result.extend(
             helper.do_xml_videos_response(context, self, client.get_videos_of_user(user_id=user_id, page=page)))
         return result
 
-    @kodion.RegisterProviderPath('^/user/(?P<user_id>.+)/following/$')
-    def _on_following(self, context, re_match):
+    # LIST: FOLLOWING
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/following\/$')
+    def _on_user_following(self, context, re_match):
+        page = int(context.get_param('page', '1'))
+        user_id = re_match.group('user_id')
+        if user_id == 'me':
+            user_id = None
+            pass
+
         client = self.get_client(context)
+        return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
+
+    # LIST: CHANNELS
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/channels\/$')
+    def _on_user_channels(self, context, re_match):
+        page = int(context.get_param('page', '1'))
+        user_id = re_match.group('user_id')
+        if user_id == 'me':
+            user_id = None
+            pass
+
+        client = self.get_client(context)
+        return helper.do_xml_user_response(context, self, client.get_channels(user_id=user_id, page=page))
+
+    # LIST: LIKES
+    @kodion.RegisterProviderPath('^/user/(?P<user_id>me|\d+)/likes/$')
+    def _on_user_likes(self, context, re_match):
+        context.set_content_type(kodion.constants.content_type.EPISODES)
 
         page = int(context.get_param('page', '1'))
         user_id = re_match.group('user_id')
@@ -150,7 +187,8 @@ class Provider(kodion.AbstractProvider):
             user_id = None
             pass
 
-        return helper.do_xml_user_response(context, self, client.get_all_contacts(user_id=user_id, page=page))
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_video_likes(user_id=user_id, page=page))
 
     @kodion.RegisterProviderPath('^/play/$')
     def _on_play(self, context, re_match):
@@ -207,25 +245,25 @@ class Provider(kodion.AbstractProvider):
 
         if self._is_logged_in:
             # my feed
-            my_feed_item = DirectoryItem(context.localize(self._local_map['vimeo.my-feed']),
-                                         context.create_uri(['my', 'feed']),
+            feed_item = DirectoryItem(context.localize(self._local_map['vimeo.my-feed']),
+                                         context.create_uri(['user', 'me', 'feed']),
                                          image=context.create_resource_path('media', 'new_uploads.png'))
-            my_feed_item.set_fanart(self.get_fanart(context))
-            result.append(my_feed_item)
+            feed_item.set_fanart(self.get_fanart(context))
+            result.append(feed_item)
 
             # Watch Later
             watch_later_item = DirectoryItem(context.localize(self._local_map['vimeo.watch-later']),
-                                             context.create_uri(['my', 'watch-later']),
+                                             context.create_uri(['user', 'me', 'watch-later']),
                                              image=context.create_resource_path('media', 'watch_later.png'))
             watch_later_item.set_fanart(self.get_fanart(context))
             result.append(watch_later_item)
 
             # my likes
-            my_likes_item = DirectoryItem(context.localize(self._local_map['vimeo.likes']),
-                                          context.create_uri(['my', 'likes']),
+            likes_item= DirectoryItem(context.localize(self._local_map['vimeo.likes']),
+                                          context.create_uri(['user', 'me', 'likes']),
                                           image=context.create_resource_path('media', 'likes.png'))
-            my_likes_item.set_fanart(self.get_fanart(context))
-            result.append(my_likes_item)
+            likes_item.set_fanart(self.get_fanart(context))
+            result.append(likes_item)
 
             # Following
             following_item = DirectoryItem(context.localize(self._local_map['vimeo.following']),
