@@ -131,12 +131,14 @@ class Provider(kodion.AbstractProvider):
 
         if self._is_logged_in:
             # my feed
-            my_feed_item = DirectoryItem('MY FEED', context.create_uri(['my', 'feed']))
+            my_feed_item = DirectoryItem('MY FEED', context.create_uri(['my', 'feed']),
+                                         image=context.create_resource_path('media', 'new_uploads.png'))
             my_feed_item.set_fanart(self.get_fanart(context))
             result.append(my_feed_item)
 
             # my likes
-            my_likes_item = DirectoryItem('MY LIKES', context.create_uri(['my', 'likes']))
+            my_likes_item = DirectoryItem('MY LIKES', context.create_uri(['my', 'likes']),
+                                          image=context.create_resource_path('media', 'likes.png'))
             my_likes_item.set_fanart(self.get_fanart(context))
             result.append(my_likes_item)
 
@@ -148,7 +150,8 @@ class Provider(kodion.AbstractProvider):
             """
 
             # Watch Later
-            watch_later_item = DirectoryItem('WATCH LATER', context.create_uri(['my', 'watch-later']))
+            watch_later_item = DirectoryItem('WATCH LATER', context.create_uri(['my', 'watch-later']),
+                                             image=context.create_resource_path('media', 'watch_later.png'))
             watch_later_item.set_fanart(self.get_fanart(context))
             result.append(watch_later_item)
             pass
