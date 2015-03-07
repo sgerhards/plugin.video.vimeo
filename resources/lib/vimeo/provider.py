@@ -87,7 +87,7 @@ class Provider(kodion.AbstractProvider):
         return context.create_resource_path('media', 'fanart.jpg')
 
     def on_search(self, search_text, context, re_match):
-        context.set_content_type(kodion.constants.content_type.EPISODES)
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         result = []
 
@@ -100,7 +100,7 @@ class Provider(kodion.AbstractProvider):
 
     @kodion.RegisterProviderPath('^/my/(?P<category>(feed|likes|watch-later))/$')
     def _on_list_videos(self, context, re_match):
-        context.set_content_type(kodion.constants.content_type.EPISODES)
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         result = []
 
@@ -239,5 +239,15 @@ class Provider(kodion.AbstractProvider):
             pass
 
         return result
+
+    def set_content_type(self, context, content_type):
+        context.set_content_type(content_type)
+        if content_type == kodion.constants.content_type.EPISODES:
+            context.add_sort_method(kodion.constants.sort_method.UNSORTED,
+                                    kodion.constants.sort_method.VIDEO_RUNTIME,
+                                    kodion.constants.sort_method.VIDEO_TITLE,
+                                    kodion.constants.sort_method.VIDEO_YEAR)
+            pass
+        pass
 
     pass

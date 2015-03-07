@@ -75,6 +75,8 @@ def do_xml_video_response(context, provider, video_xml):
     if owner is not None:
         channel_name = owner.get('username', '')
         pass
+    video_item.set_studio(channel_name)
+    video_item.add_artist(channel_name)
 
     # date
     upload_date = video_xml.find('upload_date')
@@ -87,6 +89,7 @@ def do_xml_video_response(context, provider, video_xml):
             if len(date) == 3 and len(time) == 3:
                 video_item.set_date(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]),
                                     int(time[2]))
+                video_item.set_year(int(date[0]))
                 video_item.set_aired(int(date[0]), int(date[1]), int(date[2]))
                 video_item.set_premiered(int(date[0]), int(date[1]), int(date[2]))
                 pass
