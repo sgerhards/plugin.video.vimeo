@@ -170,7 +170,7 @@ class Provider(kodion.AbstractProvider):
             # Groups
             groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
                                         context.create_uri(['user', user_id, 'groups']),
-                                        image=context.create_resource_path('media', 'channels.png'))
+                                        image=context.create_resource_path('media', 'groups.png'))
             groups_item.set_fanart(self.get_fanart(context))
             result.append(groups_item)
 
@@ -366,7 +366,7 @@ class Provider(kodion.AbstractProvider):
             # Groups
             groups_item = DirectoryItem(context.localize(self._local_map['vimeo.groups']),
                                         context.create_uri(['user', 'me', 'groups']),
-                                        image=context.create_resource_path('media', 'channels.png'))
+                                        image=context.create_resource_path('media', 'groups.png'))
             groups_item.set_fanart(self.get_fanart(context))
             result.append(groups_item)
 
