@@ -1,7 +1,4 @@
-4.0.1~beta2 (2015-03-08)
-UPD: icons (thx 2 freeman212)
-
-4.0.1~beta1 (2015-03-08)
+4.0.1 (2015-03-08)
 ADD: Go to <user>
 ADD: likes, follower, channels, albums, groups
 ADD: full watch later support

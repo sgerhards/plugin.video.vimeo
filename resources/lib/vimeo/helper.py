@@ -7,6 +7,9 @@ import xml.etree.ElementTree as ET
 
 
 def do_xml_to_video_stream(context, provider, xml):
+    def _sort(x):
+        return x['resolution']
+
     result = []
     root = ET.fromstring(xml)
     video = root.find('video')
@@ -22,6 +25,8 @@ def do_xml_to_video_stream(context, provider, xml):
             result.append(video_info)
             pass
         pass
+
+    result = sorted(result, key=_sort, reverse=False)
     return result
 
 
