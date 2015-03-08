@@ -218,11 +218,11 @@ def do_xml_channel_response(context, provider, channel):
         if is_subscribed:
             text = context.localize(provider._local_map['vimeo.channel.unfollow'])
             context_menu.append(
-                (text, 'RunPlugin(%s)' % context.create_uri(['channel', channel_id, 'subscribe'], {'subscribe': '0'})))
+                (text, 'RunPlugin(%s)' % context.create_uri(['channel', 'unsubscribe'], {'channel_id': channel_id})))
         else:
             text = context.localize(provider._local_map['vimeo.channel.follow'])
             context_menu.append(
-                (text, 'RunPlugin(%s)' % context.create_uri(['channel', channel_id, 'subscribe'], {'subscribe': '1'})))
+                (text, 'RunPlugin(%s)' % context.create_uri(['channel', 'subscribe'], {'channel_id': channel_id})))
             pass
         pass
     channel_item.set_context_menu(context_menu)

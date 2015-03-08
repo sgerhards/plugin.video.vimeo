@@ -274,13 +274,17 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
-    @kodion.RegisterProviderPath('^/channel/(?P<channel_id>.+)/subscribe/$')
+    # /channel/(subscribe|unsubscribe)/?channel_id=XX
+    @kodion.RegisterProviderPath('^/channel/(?P<method>subscribe|unsubscribe)/$')
     def _on_channel_subscribe(self, context, re_match):
-        channel_id = re_match.group('channel_id')
-        subscribe = context.get_param('subscribe', '0') == '1'
+        channel_id = context.get_param('channel_id')
 
         client = self.get_client(context)
-        helper.do_xml_error(context, self, client.subscribe_channel(channel_id=channel_id, subscribe=subscribe))
+        if re_match.group('method') == 'subscribe':
+            helper.do_xml_error(context, self, client.subscribe_channel(channel_id=channel_id))
+        else:
+            helper.do_xml_error(context, self, client.unsubscribe_channel(channel_id=channel_id))
+            pass
 
         context.get_ui().refresh_container()
         return True

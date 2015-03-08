@@ -255,15 +255,19 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def subscribe_channel(self, channel_id, subscribe=True):
+    def subscribe_channel(self, channel_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'channel_id': channel_id}
-        if subscribe:
-            post_data['method'] = 'vimeo.channels.subscribe'
-        else:
-            post_data['method'] = 'vimeo.channels.unsubscribe'
-            pass
+        post_data = {'method': 'vimeo.channels.subscribe',
+                     'channel_id': channel_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
 
+    def unsubscribe_channel(self, channel_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.unsubscribe',
+                     'channel_id': channel_id}
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
                                         headers=headers,
