@@ -237,15 +237,19 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def join_group(self, group_id, join=True):
+    def join_group(self, group_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'group_id': group_id}
-        if join:
-            post_data['method'] = 'vimeo.groups.join'
-        else:
-            post_data['method'] = 'vimeo.groups.leave'
-            pass
+        post_data = {'method': 'vimeo.groups.join',
+                     'group_id': group_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
 
+    def leave_group(self, group_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.groups.leave',
+                     'group_id': group_id}
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
                                         headers=headers,

@@ -321,11 +321,11 @@ def do_xml_group_response(context, provider, group):
         if has_joined:
             leave_text = context.localize(provider._local_map['vimeo.group.leave'])
             context_menu.append(
-                (leave_text, 'RunPlugin(%s)' % context.create_uri(['group', group_id, 'join'], {'join': '0'})))
+                (leave_text, 'RunPlugin(%s)' % context.create_uri(['group', 'leave'], {'group_id': group_id})))
         else:
             join_text = context.localize(provider._local_map['vimeo.group.join'])
             context_menu.append(
-                (join_text, 'RunPlugin(%s)' % context.create_uri(['group', group_id, 'join'], {'join': '1'})))
+                (join_text, 'RunPlugin(%s)' % context.create_uri(['group', 'join'], {'group_id': group_id})))
             pass
         pass
     group_item.set_context_menu(context_menu)

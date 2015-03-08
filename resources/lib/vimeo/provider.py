@@ -259,13 +259,17 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
-    @kodion.RegisterProviderPath('^/group/(?P<group_id>.+)/join/$')
+    # /group/(join|leave)/?group_id=XX
+    @kodion.RegisterProviderPath('^/group/(?P<method>join|leave)/$')
     def _on_group_join(self, context, re_match):
-        group_id = re_match.group('group_id')
-        join = context.get_param('join', '0') == '1'
+        group_id = context.get_param('group_id')
 
         client = self.get_client(context)
-        helper.do_xml_error(context, self, client.join_group(group_id=group_id, join=join))
+        if re_match.group('method') == 'join':
+            helper.do_xml_error(context, self, client.join_group(group_id=group_id))
+        else:
+            helper.do_xml_error(context, self, client.leave_group(group_id=group_id))
+            pass
 
         context.get_ui().refresh_container()
         return True
