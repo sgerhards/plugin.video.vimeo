@@ -134,11 +134,11 @@ def do_xml_video_response(context, provider, video_xml):
         if is_like:
             like_text = context.localize(provider._local_map['vimeo.unlike'])
             context_menu.append(
-                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'], {'like': '0'})))
+                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', 'unlike'], {'video_id': video_id})))
         else:
             like_text = context.localize(provider._local_map['vimeo.like'])
             context_menu.append(
-                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'like'], {'like': '1'})))
+                (like_text, 'RunPlugin(%s)' % context.create_uri(['video', 'like'], {'video_id': video_id})))
             pass
 
         # watch later

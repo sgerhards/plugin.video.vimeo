@@ -247,10 +247,11 @@ class Provider(kodion.AbstractProvider):
         video_item.set_uri(video_stream['url'])
         return video_item
 
-    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/like/$')
+    # /video/like|unlike/?video_id=XX
+    @kodion.RegisterProviderPath('^/video/(?P<method>like|unlike)/$')
     def _on_video_like(self, context, re_match):
-        video_id = re_match.group('video_id')
-        like = context.get_param('like', '0') == '1'
+        video_id = context.get_param('video_id')
+        like = re_match.group('method') == 'like'
 
         client = self.get_client(context)
         helper.do_xml_error(context, self, client.like_video(video_id=video_id, like=like))
