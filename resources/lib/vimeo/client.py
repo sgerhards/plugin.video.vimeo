@@ -186,7 +186,7 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_videos_of_user(self, user_id, page=1):
+    def get_videos_of_user(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
@@ -194,9 +194,12 @@ class Client():
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         post_data = {'method': 'vimeo.videos.getAll',
                      'page': str(page),
-                     'user_id': str(user_id),
                      'full_response': '1',
                      'sort': 'newest'}  # 'oldest', 'most_played', 'most_commented', 'most_liked'
+
+        if user_id and user_id != 'me':
+            post_data['user_id'] = user_id
+            pass
 
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
