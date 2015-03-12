@@ -1,4 +1,4 @@
-4.0.2~beta2 (2015-03-12)
+4.0.2~beta2 (2015-03-13)
 ADD: remove video to a group, a channel or an album
 ADD: add video to a group, a channel or an album
 
