@@ -14,7 +14,7 @@ def do_xml_to_video_stream(context, provider, xml):
     root = ET.fromstring(xml)
     video = root.find('video')
     if video is not None:
-        for video_file in video.iter('file'):
+        for video_file in video:
             height = int(video_file.get('height'))
             url = video_file.get('url')
             mime_type = video_file.get('mime_type')
@@ -122,7 +122,7 @@ def do_xml_video_response(context, provider, video_xml):
     # thumbs
     thumbnails = video_xml.find('thumbnails')
     if thumbnails is not None:
-        for thumbnail in video_xml.iter('thumbnail'):
+        for thumbnail in thumbnails:
             height = int(thumbnail.get('height', '0'))
             if height >= 360:
                 video_item.set_image(thumbnail.text)
@@ -181,7 +181,7 @@ def do_xml_videos_response(context, provider, xml):
 
     videos = root.find('videos')
     if videos is not None:
-        for video in videos.iter('video'):
+        for video in videos:
             result.append(do_xml_video_response(context, provider, video))
             pass
 
@@ -242,7 +242,7 @@ def do_xml_channels_response(context, provider, xml):
 
     channels = root.find('channels')
     if channels is not None:
-        for channel in channels.iter('channel'):
+        for channel in channels:
             result.append(do_xml_channel_response(context, provider, channel))
             pass
 
@@ -266,7 +266,7 @@ def do_xml_album_response(user_id, context, provider, album):
     if thumbnail_video is not None:
         thumbnails = thumbnail_video.find('thumbnails')
         if thumbnails is not None:
-            for thumbnail in thumbnails.iter('thumbnail'):
+            for thumbnail in thumbnails:
                 height = int(thumbnail.get('height', '0'))
                 if height >= 360:
                     album_item.set_image(thumbnail.text)
@@ -284,7 +284,7 @@ def do_xml_albums_response(user_id, context, provider, xml):
 
     albums = root.find('albums')
     if albums is not None:
-        for album in albums.iter('album'):
+        for album in albums:
             result.append(do_xml_album_response(user_id, context, provider, album))
             pass
 
@@ -345,7 +345,7 @@ def do_xml_groups_response(context, provider, xml):
 
     groups = root.find('groups')
     if groups is not None:
-        for group in groups.iter('group'):
+        for group in groups:
             result.append(do_xml_group_response(context, provider, group))
             pass
 
@@ -360,7 +360,7 @@ def do_xml_user_response(context, provider, xml):
 
     contacts = root.find('contacts')
     if contacts is not None:
-        for contact in contacts.iter('contact'):
+        for contact in contacts:
             user_id = contact.get('id')
             username = contact.get('username')
             display_name = contact.get('display_name')
@@ -370,7 +370,7 @@ def do_xml_user_response(context, provider, xml):
             # portraits
             portraits = contact.find('portraits')
             if portraits is not None:
-                for portrait in portraits.iter('portrait'):
+                for portrait in portraits:
                     height = int(portrait.get('height', '0'))
                     if height >= 256:
                         contact_item.set_image(portrait.text)
