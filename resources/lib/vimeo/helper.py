@@ -160,8 +160,9 @@ def do_xml_video_response(context, provider, video_xml):
                  'RunPlugin(%s)' % context.create_uri(['video', 'watch-later', 'add'], {'video_id': video_id})))
             pass
 
-        # add to album
-        #context_menu.append((context.localize(provider._local_map['vimeo.video.add-to']), 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '1'})))
+        # add to * (album, channel or group)
+        context_menu.append((context.localize(provider._local_map['vimeo.video.add-to']),
+                             'RunPlugin(%s)' % context.create_uri(['video', 'add-to'], {'video_id': video_id})))
         pass
 
     # Go to user
@@ -169,8 +170,8 @@ def do_xml_video_response(context, provider, video_xml):
     if owner is not None:
         owner_name = owner.get('display_name')
         owner_id = owner.get('id')
-        context_menu.append((context.localize(provider._local_map['vimeo.user.go-to']) % '[B]'+owner_name+'[/B]',
-                            'Container.Update(%s)' % context.create_uri(['user', owner_id])))
+        context_menu.append((context.localize(provider._local_map['vimeo.user.go-to']) % '[B]' + owner_name + '[/B]',
+                             'Container.Update(%s)' % context.create_uri(['user', owner_id])))
         pass
 
     video_item.set_context_menu(context_menu)
@@ -390,3 +391,32 @@ def do_xml_user_response(context, provider, xml):
         pass
 
     return result
+
+
+def do_add_video_to_album(video_id, provider, context):
+    client = provider.get_client(context)
+
+    items = []
+    root = ET.fromstring(client.get_albums(page=1))
+    do_xml_error(context, provider, root)
+    albums = root.find('albums')
+    if albums is not None:
+        for album in albums:
+            album_id = album.get('id')
+            album_name = album.find('title').text
+            items.append((album_name, album_id))
+            pass
+        pass
+    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
+    if result != -1:
+        root = ET.fromstring(client.add_video_to_album(video_id, result))
+        do_xml_error(context, provider, root)
+        pass
+    return True
+
+
+def do_add_video(video_id, category, provider, context):
+    if category == 'album':
+        do_add_video_to_album(video_id, provider, context)
+        pass
+    return None

@@ -29,7 +29,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.albums': 30505,
                                 'vimeo.videos': 30506,
                                 'vimeo.user.go-to': 30511,
-                                'vimeo.video.add-to': 30510})
+                                'vimeo.video.add-to': 30510,
+                                'vimeo.select': 30509})
 
         self._client = None
         self._is_logged_in = False
@@ -289,6 +290,19 @@ class Provider(kodion.AbstractProvider):
 
         context.get_ui().refresh_container()
         return True
+
+    @kodion.RegisterProviderPath('^/video/add-to/$')
+    def _on_video_add_to(self, context, re_match):
+        items = [
+            (context.localize(self._local_map['vimeo.groups']), 'group'),
+            (context.localize(self._local_map['vimeo.channels']), 'channel'),
+            (context.localize(self._local_map['vimeo.albums']), 'album')]
+        result = context.get_ui().on_select(context.localize(self._local_map['vimeo.video.add-to']), items)
+        if result != -1:
+            video_id = context.get_param('video_id')
+            helper.do_add_video(video_id=video_id, category=result, provider=self, context=context)
+            pass
+        pass
 
     @kodion.RegisterProviderPath('^/video/watch-later/(?P<method>add|remove)/$')
     def _on_video_watch_later(self, context, re_match):
