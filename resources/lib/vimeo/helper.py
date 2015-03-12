@@ -415,8 +415,33 @@ def do_add_video_to_album(video_id, provider, context):
     return True
 
 
+def do_add_video_to_group(video_id, provider, context):
+    client = provider.get_client(context)
+
+    items = []
+    root = ET.fromstring(client.get_groups(page=1))
+    do_xml_error(context, provider, root)
+    groups = root.find('groups')
+    if groups is not None:
+        for group in groups:
+            group_id = group.get('id')
+            group_name = group.find('name').text
+            items.append((group_name, group_id))
+            pass
+        pass
+    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
+    if result != -1:
+        root = ET.fromstring(client.add_video_to_group(video_id, result))
+        do_xml_error(context, provider, root)
+        pass
+    return True
+
+
 def do_add_video(video_id, category, provider, context):
     if category == 'album':
         do_add_video_to_album(video_id, provider, context)
+        pass
+    elif category == 'group':
+        do_add_video_to_group(video_id, provider, context)
         pass
     return None

@@ -73,7 +73,17 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_groups(self, user_id, page=1):
+    def add_video_to_group(self, video_id, group_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.groups.addVideo',
+                     'video_id': video_id,
+                     'group_id': group_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_groups(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
@@ -82,7 +92,7 @@ class Client():
         post_data = {'method': 'vimeo.groups.getAddable',
                      'sort': 'newest',  # 'oldest', 'most_played', 'most_commented', 'most_liked'
                      'page': str(page)}
-        if user_id:
+        if user_id and user_id != 'me':
             post_data['user_id'] = user_id
             pass
 
