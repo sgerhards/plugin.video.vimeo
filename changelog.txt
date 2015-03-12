@@ -1,3 +1,5 @@
+4.0.2~beta1 (2015-03-12)
+
 4.0.1 (2015-03-08)
 ADD: Go to <user>
 ADD: likes, follower, channels, albums, groups
