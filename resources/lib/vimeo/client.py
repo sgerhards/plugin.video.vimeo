@@ -223,15 +223,19 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def watch_video_later(self, video_id, later=True):
+    def add_video_to_watch_later(self, video_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        post_data = {'video_id': video_id}
-        if later:
-            post_data['method'] = 'vimeo.albums.addToWatchLater'
-        else:
-            post_data['method'] = 'vimeo.albums.removeFromWatchLater'
-            pass
+        post_data = {'video_id': video_id,
+                     'method': 'vimeo.albums.addToWatchLater'}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
 
+    def remove_video_from_watch_later(self, video_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'video_id': video_id,
+                     'method': 'vimeo.albums.removeFromWatchLater'}
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
                                         headers=headers,

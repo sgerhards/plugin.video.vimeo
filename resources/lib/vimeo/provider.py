@@ -28,7 +28,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.channel.unfollow': 30513,
                                 'vimeo.albums': 30505,
                                 'vimeo.videos': 30506,
-                                'vimeo.user.go-to': 30511})
+                                'vimeo.user.go-to': 30511,
+                                'vimeo.video.add-to': 30510})
 
         self._client = None
         self._is_logged_in = False
@@ -289,13 +290,17 @@ class Provider(kodion.AbstractProvider):
         context.get_ui().refresh_container()
         return True
 
-    @kodion.RegisterProviderPath('^/video/(?P<video_id>.+)/watch-later/$')
+    @kodion.RegisterProviderPath('^/video/watch-later/(?P<method>add|remove)/$')
     def _on_video_watch_later(self, context, re_match):
-        video_id = re_match.group('video_id')
-        later = context.get_param('later', '0') == '1'
+        video_id = context.get_param('video_id')
+        method = re_match.group('method')
 
         client = self.get_client(context)
-        helper.do_xml_error(context, self, client.watch_video_later(video_id=video_id, later=later))
+        if method == 'add':
+            helper.do_xml_error(context, self, client.add_video_to_watch_later(video_id=video_id))
+        elif method=='remove':
+            helper.do_xml_error(context, self, client.remove_video_from_watch_later(video_id=video_id))
+            pass
 
         context.get_ui().refresh_container()
         return True

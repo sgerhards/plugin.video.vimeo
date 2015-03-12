@@ -152,13 +152,16 @@ def do_xml_video_response(context, provider, video_xml):
             watch_later_text = context.localize(provider._local_map['vimeo.watch-later.remove'])
             context_menu.append(
                 (watch_later_text,
-                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '0'})))
+                 'RunPlugin(%s)' % context.create_uri(['video', 'watch-later', 'remove'], {'video_id': video_id})))
         else:
             watch_later_text = context.localize(provider._local_map['vimeo.watch-later.add'])
             context_menu.append(
                 (watch_later_text,
-                 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '1'})))
+                 'RunPlugin(%s)' % context.create_uri(['video', 'watch-later', 'add'], {'video_id': video_id})))
             pass
+
+        # add to album
+        #context_menu.append((context.localize(provider._local_map['vimeo.video.add-to']), 'RunPlugin(%s)' % context.create_uri(['video', video_id, 'watch-later'], {'later': '1'})))
         pass
 
     # Go to user
