@@ -425,6 +425,10 @@ def do_add_video_to_album(video_id, provider, context, id_filter=[]):
                 pass
             pass
         pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.adding.no-album']), time_milliseconds=5000)
+        return True
+
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
     if result != -1:
         root = ET.fromstring(client.add_video_to_album(video_id, result))
@@ -449,6 +453,10 @@ def do_add_video_to_group(video_id, provider, context, id_filter=[]):
                 pass
             pass
         pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.adding.no-group']), time_milliseconds=5000)
+        return True
+
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
     if result != -1:
         root = ET.fromstring(client.add_video_to_group(video_id, result))
@@ -473,6 +481,10 @@ def do_add_video_to_channel(video_id, provider, context, id_filter=[]):
                 pass
             pass
         pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.adding.no-channel']), time_milliseconds=5000)
+        return True
+
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
     if result != -1:
         root = ET.fromstring(client.add_video_to_channel(video_id, result))

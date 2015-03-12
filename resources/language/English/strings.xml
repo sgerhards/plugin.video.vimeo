@@ -63,7 +63,8 @@
     <string id="30504">Groups</string>
     <string id="30505">Albums</string>
     <string id="30506">Videos</string>
-
+    <string id="30507">No group available for adding</string>
+    <string id="30508">No album available for adding</string>
     <string id="30509">Please select</string>
     <string id="30510">Add to...</string>
     <string id="30511">Go to %s</string>
@@ -76,4 +77,5 @@
     <string id="30518">Like</string>
     <string id="30519">Unlike</string>
     <string id="30520">Show channel name in description</string>
+    <string id="30521">No channel available for adding</string>
 </strings>

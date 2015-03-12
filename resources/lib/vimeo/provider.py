@@ -31,6 +31,9 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.user.go-to': 30511,
                                 'vimeo.video.add-to': 30510,
                                 'vimeo.select': 30509,
+                                'vimeo.adding.no-group': 30507,
+                                'vimeo.adding.no-channel': 30521,
+                                'vimeo.adding.no-album': 30508,
                                 'vimeo.remove': 30108})
 
         self._client = None
