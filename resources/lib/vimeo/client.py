@@ -178,7 +178,7 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
-    def get_channels(self, user_id=None, page=1):
+    def get_channels_all(self, user_id=None, page=1):
         if not page:
             page = 1
             pass
@@ -187,10 +187,38 @@ class Client():
         post_data = {'method': 'vimeo.channels.getAll',
                      'page': str(page),
                      'sort': 'alphabetical'}  # 'newest', 'oldest', 'alphabetical', 'most_videos', 'most_subscribed', 'most_recently_updated'
-        if user_id:
+        if user_id and user_id != 'me':
             post_data['user_id'] = user_id
             pass
 
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def get_channels_moderated(self, user_id=None, page=1):
+        if not page:
+            page = 1
+            pass
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.getModerated',
+                     'page': str(page),
+                     'sort': 'alphabetical'}  # 'newest', 'oldest', 'alphabetical', 'most_videos', 'most_subscribed', 'most_recently_updated'
+        if user_id and user_id != 'me':
+            post_data['user_id'] = user_id
+            pass
+
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def add_video_to_channel(self, video_id, channel_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.addVideo',
+                     'video_id': video_id,
+                     'channel_id': channel_id}
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
                                         headers=headers,
