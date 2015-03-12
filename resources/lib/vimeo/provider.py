@@ -110,8 +110,8 @@ class Provider(kodion.AbstractProvider):
         return result
 
     # LIST: VIDEO OF A CHANNEL
-    @kodion.RegisterProviderPath('^/channel/(?P<channel_id>\d+)/$')
-    def _on_channel(self, context, re_match):
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/channel\/(?P<channel_id>\d+)/$')
+    def _on_user_channel(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         page = int(context.get_param('page', '1'))
@@ -120,8 +120,8 @@ class Provider(kodion.AbstractProvider):
         return helper.do_xml_videos_response(context, self, client.get_channel_videos(channel_id=channel_id, page=page))
 
     # LIST: VIDEO OF A GROUP
-    @kodion.RegisterProviderPath('^/group/(?P<group_id>\d+)/$')
-    def _on_group(self, context, re_match):
+    @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/group\/(?P<group_id>\d+)/$')
+    def _on_user_group(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         page = int(context.get_param('page', '1'))
@@ -199,24 +199,16 @@ class Provider(kodion.AbstractProvider):
     def _on_user_groups(self, context, re_match):
         page = int(context.get_param('page', '1'))
         user_id = re_match.group('user_id')
-        if user_id == 'me':
-            user_id = None
-            pass
-
         client = self.get_client(context)
-        return helper.do_xml_groups_response(context, self, client.get_groups(user_id=user_id, page=page))
+        return helper.do_xml_groups_response(user_id, context, self, client.get_groups(user_id=user_id, page=page))
 
     # LIST: CHANNELS
     @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/channels\/$')
     def _on_user_channels(self, context, re_match):
         page = int(context.get_param('page', '1'))
         user_id = re_match.group('user_id')
-        if user_id == 'me':
-            user_id = None
-            pass
-
         client = self.get_client(context)
-        return helper.do_xml_channels_response(context, self, client.get_channels_all(user_id=user_id, page=page))
+        return helper.do_xml_channels_response(user_id, context, self, client.get_channels_all(user_id=user_id, page=page))
 
     # LIST: LIKES
     @kodion.RegisterProviderPath('^/user/(?P<user_id>me|\d+)/likes/$')

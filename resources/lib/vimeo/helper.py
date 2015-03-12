@@ -193,7 +193,7 @@ def do_xml_videos_response(context, provider, xml):
     return result
 
 
-def do_xml_channel_response(context, provider, channel):
+def do_xml_channel_response(user_id, context, provider, channel):
     if isinstance(channel, basestring):
         channel = ET.fromstring(channel)
         do_xml_error(context, provider, channel)
@@ -218,7 +218,7 @@ def do_xml_channel_response(context, provider, channel):
             pass
         pass
 
-    channel_item = DirectoryItem(channel_name, context.create_uri(['channel', channel_id]), image=image)
+    channel_item = DirectoryItem(channel_name, context.create_uri(['user', user_id, 'channel', channel_id]), image=image)
 
     # context menu
     context_menu = []
@@ -239,7 +239,7 @@ def do_xml_channel_response(context, provider, channel):
     return channel_item
 
 
-def do_xml_channels_response(context, provider, xml):
+def do_xml_channels_response(user_id, context, provider, xml):
     result = []
     root = ET.fromstring(xml)
     do_xml_error(context, provider, root)
@@ -247,7 +247,7 @@ def do_xml_channels_response(context, provider, xml):
     channels = root.find('channels')
     if channels is not None:
         for channel in channels:
-            result.append(do_xml_channel_response(context, provider, channel))
+            result.append(do_xml_channel_response(user_id, context, provider, channel))
             pass
 
         _do_next_page(result, channels, context, provider)
@@ -296,7 +296,7 @@ def do_xml_albums_response(user_id, context, provider, xml):
     return result
 
 
-def do_xml_group_response(context, provider, group):
+def do_xml_group_response(user_id, context, provider, group):
     if isinstance(group, basestring):
         group = ET.fromstring(group)
         do_xml_error(context, provider, group)
@@ -321,7 +321,7 @@ def do_xml_group_response(context, provider, group):
             pass
         pass
 
-    group_item = DirectoryItem(group_name, context.create_uri(['group', group_id]), image=image)
+    group_item = DirectoryItem(group_name, context.create_uri(['user', user_id, 'group', group_id]), image=image)
 
     # context menu
     context_menu = []
@@ -342,7 +342,7 @@ def do_xml_group_response(context, provider, group):
     return group_item
 
 
-def do_xml_groups_response(context, provider, xml):
+def do_xml_groups_response(user_id, context, provider, xml):
     result = []
     root = ET.fromstring(xml)
     do_xml_error(context, provider, root)
@@ -350,7 +350,7 @@ def do_xml_groups_response(context, provider, xml):
     groups = root.find('groups')
     if groups is not None:
         for group in groups:
-            result.append(do_xml_group_response(context, provider, group))
+            result.append(do_xml_group_response(user_id, context, provider, group))
             pass
 
         _do_next_page(result, groups, context, provider)
