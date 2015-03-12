@@ -30,7 +30,8 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.videos': 30506,
                                 'vimeo.user.go-to': 30511,
                                 'vimeo.video.add-to': 30510,
-                                'vimeo.select': 30509})
+                                'vimeo.select': 30509,
+                                'vimeo.remove': 30108})
 
         self._client = None
         self._is_logged_in = False

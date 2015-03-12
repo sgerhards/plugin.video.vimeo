@@ -39,6 +39,15 @@ class Client():
         data = dict(urlparse.parse_qsl(data))
         return data
 
+    def get_collections(self, video_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.videos.getCollections',
+                     'video_id': video_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
     def search(self, query, page=1):
         if not page:
             page = 1

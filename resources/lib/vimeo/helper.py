@@ -1,3 +1,4 @@
+import re
 from resources.lib.kodion.items import VideoItem, NextPageItem
 from resources.lib.kodion.items.directory_item import DirectoryItem
 
@@ -163,6 +164,20 @@ def do_xml_video_response(context, provider, video_xml):
         # add to * (album, channel or group)
         context_menu.append((context.localize(provider._local_map['vimeo.video.add-to']),
                              'RunPlugin(%s)' % context.create_uri(['video', 'add-to'], {'video_id': video_id})))
+
+        # remove
+        """
+        re_match = re.match(r'/user/me/(?P<category>group|album|channel)/(?P<category_id>\d+)/', context.get_path())
+        if re_match:
+            category = re_match.group('category')
+            category_id = re_match.group('category_id')
+
+            context_menu.append((context.localize(provider._local_map['vimeo.remove']),
+                                 'RunPlugin(%s)' % context.create_uri(['video', 'remove-from', category],
+                                                                      {'video_id': video_id,
+                                                                       category + '_id': category})))
+            pass
+        """
         pass
 
     # Go to user
@@ -218,7 +233,8 @@ def do_xml_channel_response(user_id, context, provider, channel):
             pass
         pass
 
-    channel_item = DirectoryItem(channel_name, context.create_uri(['user', user_id, 'channel', channel_id]), image=image)
+    channel_item = DirectoryItem(channel_name, context.create_uri(['user', user_id, 'channel', channel_id]),
+                                 image=image)
 
     # context menu
     context_menu = []
@@ -393,7 +409,7 @@ def do_xml_user_response(context, provider, xml):
     return result
 
 
-def do_add_video_to_album(video_id, provider, context):
+def do_add_video_to_album(video_id, provider, context, id_filter=[]):
     client = provider.get_client(context)
 
     items = []
@@ -403,8 +419,10 @@ def do_add_video_to_album(video_id, provider, context):
     if albums is not None:
         for album in albums:
             album_id = album.get('id')
-            album_name = album.find('title').text
-            items.append((album_name, album_id))
+            if not album_id in id_filter:
+                album_name = album.find('title').text
+                items.append((album_name, album_id))
+                pass
             pass
         pass
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
@@ -415,7 +433,7 @@ def do_add_video_to_album(video_id, provider, context):
     return True
 
 
-def do_add_video_to_group(video_id, provider, context):
+def do_add_video_to_group(video_id, provider, context, id_filter=[]):
     client = provider.get_client(context)
 
     items = []
@@ -425,8 +443,10 @@ def do_add_video_to_group(video_id, provider, context):
     if groups is not None:
         for group in groups:
             group_id = group.get('id')
-            group_name = group.find('name').text
-            items.append((group_name, group_id))
+            if not group_id in id_filter:
+                group_name = group.find('name').text
+                items.append((group_name, group_id))
+                pass
             pass
         pass
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
@@ -437,7 +457,7 @@ def do_add_video_to_group(video_id, provider, context):
     return True
 
 
-def do_add_video_to_channel(video_id, provider, context):
+def do_add_video_to_channel(video_id, provider, context, id_filter=[]):
     client = provider.get_client(context)
 
     items = []
@@ -447,8 +467,10 @@ def do_add_video_to_channel(video_id, provider, context):
     if channels is not None:
         for channel in channels:
             channel_id = channel.get('id')
-            channel_name = channel.find('name').text
-            items.append((channel_name, channel_id))
+            if not channel_id in id_filter:
+                channel_name = channel.find('name').text
+                items.append((channel_name, channel_id))
+                pass
             pass
         pass
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
@@ -460,13 +482,28 @@ def do_add_video_to_channel(video_id, provider, context):
 
 
 def do_add_video(video_id, category, provider, context):
+    id_filter = []
+    if category in ['album', 'group', 'channel']:
+        client = provider.get_client(context)
+        root = ET.fromstring(client.get_collections(video_id=video_id))
+        do_xml_error(context, provider, root)
+        collections = root.find('collections')
+        if collections is not None:
+            for collection in collections:
+                if collection.get('type') == category:
+                    id_filter.append(collection.get('id'))
+                    pass
+                pass
+            pass
+        pass
+
     if category == 'album':
-        do_add_video_to_album(video_id, provider, context)
+        do_add_video_to_album(video_id, provider, context, id_filter=id_filter)
         pass
     elif category == 'group':
-        do_add_video_to_group(video_id, provider, context)
+        do_add_video_to_group(video_id, provider, context, id_filter=id_filter)
         pass
     elif category == 'channel':
-        do_add_video_to_channel(video_id, provider, context)
+        do_add_video_to_channel(video_id, provider, context, id_filter=id_filter)
         pass
     return None
