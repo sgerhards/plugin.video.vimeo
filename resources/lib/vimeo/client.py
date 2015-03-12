@@ -82,6 +82,16 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def remove_video_from_group(self, video_id, group_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.groups.removeVideo',
+                     'video_id': video_id,
+                     'group_id': group_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
     def add_video_to_group(self, video_id, group_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         post_data = {'method': 'vimeo.groups.addVideo',
@@ -223,6 +233,16 @@ class Client():
                                         headers=headers,
                                         post_data=post_data)
 
+    def remove_video_from_channel(self, video_id, channel_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.channels.removeVideo',
+                     'video_id': video_id,
+                     'channel_id': channel_id}
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
     def add_video_to_channel(self, video_id, channel_id):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         post_data = {'method': 'vimeo.channels.addVideo',
@@ -337,6 +357,16 @@ class Client():
             post_data['user_id'] = user_id
             pass
 
+        return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
+                                        method='POST',
+                                        headers=headers,
+                                        post_data=post_data)
+
+    def remove_video_from_album(self, video_id, album_id):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        post_data = {'method': 'vimeo.albums.removeVideo',
+                     'video_id': video_id,
+                     'album_id': album_id}
         return self._perform_v2_request(url='http://vimeo.com/api/rest/v2',
                                         method='POST',
                                         headers=headers,

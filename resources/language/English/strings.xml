@@ -78,4 +78,8 @@
     <string id="30519">Unlike</string>
     <string id="30520">Show channel name in description</string>
     <string id="30521">No channel available for adding</string>
+    <string id="30522">Remove from...</string>
+    <string id="30523">No group for removal available</string>
+    <string id="30524">No channel for removal available</string>
+    <string id="30525">No album for removal available</string>
 </strings>

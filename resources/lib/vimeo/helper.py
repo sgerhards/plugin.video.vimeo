@@ -59,9 +59,9 @@ def do_xml_error(context, provider, root_element):
             explanation = error_item.get('expl')
             message = '%s - %s' % (message, explanation)
             context.get_ui().show_notification(message, time_milliseconds=15000)
-            pass
+            return False
         pass
-    pass
+    return True
 
 
 def do_xml_video_response(context, provider, video_xml):
@@ -165,19 +165,9 @@ def do_xml_video_response(context, provider, video_xml):
         context_menu.append((context.localize(provider._local_map['vimeo.video.add-to']),
                              'RunPlugin(%s)' % context.create_uri(['video', 'add-to'], {'video_id': video_id})))
 
-        # remove
-        """
-        re_match = re.match(r'/user/me/(?P<category>group|album|channel)/(?P<category_id>\d+)/', context.get_path())
-        if re_match:
-            category = re_match.group('category')
-            category_id = re_match.group('category_id')
-
-            context_menu.append((context.localize(provider._local_map['vimeo.remove']),
-                                 'RunPlugin(%s)' % context.create_uri(['video', 'remove-from', category],
-                                                                      {'video_id': video_id,
-                                                                       category + '_id': category})))
-            pass
-        """
+        # remove from * (album, channel or group)
+        context_menu.append((context.localize(provider._local_map['vimeo.video.remove-from']),
+                             'RunPlugin(%s)' % context.create_uri(['video', 'remove-from'], {'video_id': video_id})))
         pass
 
     # Go to user
@@ -518,4 +508,126 @@ def do_add_video(video_id, category, provider, context):
     elif category == 'channel':
         do_add_video_to_channel(video_id, provider, context, id_filter=id_filter)
         pass
-    return None
+    return True
+
+
+def do_remove_video_from_album(video_id, provider, context, id_filter):
+    client = provider.get_client(context)
+
+    items = []
+    root = ET.fromstring(client.get_albums(page=1))
+    do_xml_error(context, provider, root)
+    albums = root.find('albums')
+    if albums is not None:
+        for album in albums:
+            album_id = album.get('id')
+            if album_id in id_filter:
+                album_name = album.find('title').text
+                items.append((album_name, album_id))
+                pass
+            pass
+        pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.removing.no-album']), time_milliseconds=5000)
+        return False
+
+    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
+    if result != -1:
+        root = ET.fromstring(client.remove_video_from_album(video_id, result))
+        return do_xml_error(context, provider, root)
+
+    return True
+
+
+def do_remove_video_from_group(video_id, provider, context, id_filter):
+    client = provider.get_client(context)
+
+    items = []
+    root = ET.fromstring(client.get_groups(page=1))
+    if not do_xml_error(context, provider, root):
+        return False
+
+    groups = root.find('groups')
+    if groups is not None:
+        for group in groups:
+            group_id = group.get('id')
+            if group_id in id_filter:
+                group_name = group.find('name').text
+                items.append((group_name, group_id))
+                pass
+            pass
+        pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.removing.no-group']), time_milliseconds=5000)
+        return False
+
+    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
+    if result != -1:
+        root = ET.fromstring(client.remove_video_from_group(video_id, result))
+        return do_xml_error(context, provider, root)
+
+    return True
+
+
+def do_remove_video_from_channel(video_id, provider, context, id_filter):
+    client = provider.get_client(context)
+
+    items = []
+    root = ET.fromstring(client.get_channels_moderated(page=1))
+    if not do_xml_error(context, provider, root):
+        return False
+
+    channels = root.find('channels')
+    if channels is not None:
+        for channel in channels:
+            channel_id = channel.get('id')
+            if channel_id in id_filter:
+                channel_name = channel.find('name').text
+                items.append((channel_name, channel_id))
+                pass
+            pass
+        pass
+    if not items:
+        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.removing.no-channel']), time_milliseconds=5000)
+        return False
+
+    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
+    if result != -1:
+        root = ET.fromstring(client.remove_video_from_channel(video_id, result))
+        return do_xml_error(context, provider, root)
+
+    return True
+
+
+def do_remove_video(video_id, category, provider, context):
+    id_filter = []
+    if category in ['album', 'group', 'channel']:
+        client = provider.get_client(context)
+        root = ET.fromstring(client.get_collections(video_id=video_id))
+        do_xml_error(context, provider, root)
+        collections = root.find('collections')
+        if collections is not None:
+            for collection in collections:
+                if collection.get('type') == category:
+                    id_filter.append(collection.get('id'))
+                    pass
+                pass
+            pass
+        pass
+
+    result = False
+    if category == 'album':
+        result = do_remove_video_from_album(video_id, provider, context, id_filter=id_filter)
+        pass
+    elif category == 'group':
+        result = do_remove_video_from_group(video_id, provider, context, id_filter=id_filter)
+        pass
+    elif category == 'channel':
+        result = do_remove_video_from_channel(video_id, provider, context, id_filter=id_filter)
+        pass
+
+    if result:
+        context.get_ui().refresh_container()
+        pass
+
+    return True

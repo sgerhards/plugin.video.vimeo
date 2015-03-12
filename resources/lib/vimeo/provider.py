@@ -34,7 +34,11 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.adding.no-group': 30507,
                                 'vimeo.adding.no-channel': 30521,
                                 'vimeo.adding.no-album': 30508,
-                                'vimeo.remove': 30108})
+                                'vimeo.removing.no-group': 30523,
+                                'vimeo.removing.no-channel': 30524,
+                                'vimeo.removing.no-album': 30525,
+                                'vimeo.remove': 30108,
+                                'vimeo.video.remove-from': 30522})
 
         self._client = None
         self._is_logged_in = False
@@ -297,6 +301,19 @@ class Provider(kodion.AbstractProvider):
         if result != -1:
             video_id = context.get_param('video_id')
             helper.do_add_video(video_id=video_id, category=result, provider=self, context=context)
+            pass
+        pass
+
+    @kodion.RegisterProviderPath('^/video/remove-from/$')
+    def _on_video_remove_from(self, context, re_match):
+        items = [
+            (context.localize(self._local_map['vimeo.groups']), 'group'),
+            (context.localize(self._local_map['vimeo.channels']), 'channel'),
+            (context.localize(self._local_map['vimeo.albums']), 'album')]
+        result = context.get_ui().on_select(context.localize(self._local_map['vimeo.video.remove-from']), items)
+        if result != -1:
+            video_id = context.get_param('video_id')
+            helper.do_remove_video(video_id=video_id, category=result, provider=self, context=context)
             pass
         pass
 
