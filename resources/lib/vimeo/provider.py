@@ -301,7 +301,7 @@ class Provider(kodion.AbstractProvider):
         result = context.get_ui().on_select(context.localize(self._local_map['vimeo.video.add-to']), items)
         if result != -1:
             video_id = context.get_param('video_id')
-            helper.do_add_video(video_id=video_id, category=result, provider=self, context=context)
+            helper.do_manage_video_for_x(video_id=video_id, category=result, provider=self, context=context, add=True)
             pass
         pass
 
@@ -314,7 +314,7 @@ class Provider(kodion.AbstractProvider):
         result = context.get_ui().on_select(context.localize(self._local_map['vimeo.video.remove-from']), items)
         if result != -1:
             video_id = context.get_param('video_id')
-            helper.do_remove_video(video_id=video_id, category=result, provider=self, context=context)
+            helper.do_manage_video_for_x(video_id=video_id, category=result, provider=self, context=context, add=False)
             pass
         pass
 

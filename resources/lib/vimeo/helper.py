@@ -399,7 +399,7 @@ def do_xml_user_response(context, provider, xml):
     return result
 
 
-def do_add_video(video_id, category, provider, context):
+def do_manage_video_for_x(video_id, category, provider, context, add):
     id_filter = []
     if category in ['album', 'group', 'channel']:
         client = provider.get_client(context)
@@ -416,13 +416,13 @@ def do_add_video(video_id, category, provider, context):
         pass
 
     if category == 'album':
-        do_manage_video_for_album(video_id, provider, context, id_filter=id_filter, add=True)
+        do_manage_video_for_album(video_id, provider, context, id_filter=id_filter, add=add)
         pass
     elif category == 'group':
-        do_manage_video_for_group(video_id, provider, context, id_filter=id_filter, add=True)
+        do_manage_video_for_group(video_id, provider, context, id_filter=id_filter, add=add)
         pass
     elif category == 'channel':
-        do_manage_video_for_channel(video_id, provider, context, id_filter=id_filter, add=True)
+        do_manage_video_for_channel(video_id, provider, context, id_filter=id_filter, add=add)
         pass
     return True
 
@@ -538,39 +538,5 @@ def do_manage_video_for_channel(video_id, provider, context, id_filter, add):
             root = ET.fromstring(client.remove_video_from_channel(video_id, result))
             pass
         return do_xml_error(context, provider, root)
-
-    return True
-
-
-def do_remove_video(video_id, category, provider, context):
-    id_filter = []
-    if category in ['album', 'group', 'channel']:
-        client = provider.get_client(context)
-        root = ET.fromstring(client.get_collections(video_id=video_id))
-        do_xml_error(context, provider, root)
-        collections = root.find('collections')
-        if collections is not None:
-            for collection in collections:
-                if collection.get('type') == category:
-                    id_filter.append(collection.get('id'))
-                    pass
-                pass
-            pass
-        pass
-
-    result = False
-    if category == 'album':
-        result = do_manage_video_for_album(video_id, provider, context, id_filter=id_filter, add=False)
-        pass
-    elif category == 'group':
-        result = do_manage_video_for_group(video_id, provider, context, id_filter=id_filter, add=False)
-        pass
-    elif category == 'channel':
-        result = do_manage_video_for_channel(video_id, provider, context, id_filter=id_filter, add=False)
-        pass
-
-    if result:
-        context.get_ui().refresh_container()
-        pass
 
     return True
