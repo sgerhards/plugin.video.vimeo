@@ -399,34 +399,6 @@ def do_xml_user_response(context, provider, xml):
     return result
 
 
-def do_add_video_to_group(video_id, provider, context, id_filter=[]):
-    client = provider.get_client(context)
-
-    items = []
-    root = ET.fromstring(client.get_groups(page=1))
-    do_xml_error(context, provider, root)
-    groups = root.find('groups')
-    if groups is not None:
-        for group in groups:
-            group_id = group.get('id')
-            if not group_id in id_filter:
-                group_name = group.find('name').text
-                items.append((group_name, group_id))
-                pass
-            pass
-        pass
-    if not items:
-        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.adding.no-group']), time_milliseconds=5000)
-        return True
-
-    result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
-    if result != -1:
-        root = ET.fromstring(client.add_video_to_group(video_id, result))
-        do_xml_error(context, provider, root)
-        pass
-    return True
-
-
 def do_add_video_to_channel(video_id, provider, context, id_filter=[]):
     client = provider.get_client(context)
 
@@ -475,7 +447,7 @@ def do_add_video(video_id, category, provider, context):
         do_manage_video_for_album(video_id, provider, context, id_filter=id_filter, add=True)
         pass
     elif category == 'group':
-        do_add_video_to_group(video_id, provider, context, id_filter=id_filter)
+        do_manage_video_for_group(video_id, provider, context, id_filter=id_filter, add=True)
         pass
     elif category == 'channel':
         do_add_video_to_channel(video_id, provider, context, id_filter=id_filter)
@@ -520,7 +492,7 @@ def do_manage_video_for_album(video_id, provider, context, id_filter, add=True):
     return True
 
 
-def do_remove_video_from_group(video_id, provider, context, id_filter):
+def do_manage_video_for_group(video_id, provider, context, id_filter, add=True):
     client = provider.get_client(context)
 
     items = []
@@ -532,19 +504,28 @@ def do_remove_video_from_group(video_id, provider, context, id_filter):
     if groups is not None:
         for group in groups:
             group_id = group.get('id')
-            if group_id in id_filter:
+            if (add and group_id not in id_filter) or (not add and group_id in id_filter):
                 group_name = group.find('name').text
                 items.append((group_name, group_id))
                 pass
             pass
         pass
     if not items:
-        context.get_ui().show_notification(context.localize(provider._local_map['vimeo.removing.no-group']), time_milliseconds=5000)
+        if add:
+            context.get_ui().show_notification(context.localize(provider._local_map['vimeo.adding.no-group']), time_milliseconds=5000)
+        else:
+            context.get_ui().show_notification(context.localize(provider._local_map['vimeo.removing.no-group']), time_milliseconds=5000)
+            pass
         return False
 
     result = context.get_ui().on_select(context.localize(provider._local_map['vimeo.select']), items)
     if result != -1:
-        root = ET.fromstring(client.remove_video_from_group(video_id, result))
+        root = ''
+        if add:
+            root = ET.fromstring(client.add_video_to_group(video_id, result))
+        else:
+            root = ET.fromstring(client.remove_video_from_group(video_id, result))
+            pass
         return do_xml_error(context, provider, root)
 
     return True
@@ -601,7 +582,7 @@ def do_remove_video(video_id, category, provider, context):
         result = do_manage_video_for_album(video_id, provider, context, id_filter=id_filter, add=False)
         pass
     elif category == 'group':
-        result = do_remove_video_from_group(video_id, provider, context, id_filter=id_filter)
+        result = do_manage_video_for_group(video_id, provider, context, id_filter=id_filter, add=False)
         pass
     elif category == 'channel':
         result = do_remove_video_from_channel(video_id, provider, context, id_filter=id_filter)
