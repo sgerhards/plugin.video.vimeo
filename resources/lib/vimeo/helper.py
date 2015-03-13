@@ -1,4 +1,5 @@
 import re
+from resources.lib import kodion
 from resources.lib.kodion.items import VideoItem, NextPageItem
 from resources.lib.kodion.items.directory_item import DirectoryItem
 
@@ -540,3 +541,27 @@ def do_manage_video_for_channel(video_id, provider, context, id_filter, add):
         return do_xml_error(context, provider, root)
 
     return True
+
+
+def do_xml_featured_response(context, provider, xml):
+    root = ET.fromstring(xml)
+    if not do_xml_error(context, provider, root):
+        return []
+
+    result = []
+    for item in root:
+        item_type = item.find('type').text
+        if item_type == 'channel':
+            channel_id = item.find('id').text
+            channel_name = item.find('title').text
+            channel_image = item.find('header_url').text
+
+            channel_item = DirectoryItem(channel_name, context.create_uri(['channel', channel_id]),
+                                         image=channel_image)
+            channel_item.set_fanart(provider.get_fanart(context))
+            result.append(channel_item)
+            pass
+        else:
+            raise kodion.KodionException('Unknown type "%s" for featured' % item_type)
+        pass
+    return result

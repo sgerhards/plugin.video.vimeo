@@ -38,6 +38,7 @@ class Provider(kodion.AbstractProvider):
                                 'vimeo.removing.no-channel': 30524,
                                 'vimeo.removing.no-album': 30525,
                                 'vimeo.remove': 30108,
+                                'vimeo.featured': 30526,
                                 'vimeo.video.remove-from': 30522})
 
         self._client = None
@@ -120,6 +121,16 @@ class Provider(kodion.AbstractProvider):
     # LIST: VIDEO OF A CHANNEL
     @kodion.RegisterProviderPath('^\/user\/(?P<user_id>me|\d+)\/channel\/(?P<channel_id>\d+)/$')
     def _on_user_channel(self, context, re_match):
+        self.set_content_type(context, kodion.constants.content_type.EPISODES)
+
+        page = int(context.get_param('page', '1'))
+        channel_id = re_match.group('channel_id')
+        client = self.get_client(context)
+        return helper.do_xml_videos_response(context, self, client.get_channel_videos(channel_id=channel_id, page=page))
+
+    # LIST: VIDEO OF A CHANNEL
+    @kodion.RegisterProviderPath('^\/channel\/(?P<channel_id>.+)/$')
+    def _on_channel(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         page = int(context.get_param('page', '1'))
@@ -394,10 +405,21 @@ class Provider(kodion.AbstractProvider):
 
         return result
 
+    @kodion.RegisterProviderPath('^/featured/$')
+    def _on_featured(self, context, re_match):
+        return helper.do_xml_featured_response(context, self, self.get_client(context).get_featured())
+
     def on_root(self, context, re_match):
         result = []
 
         client = self.get_client(context)
+
+        # featured
+        featured_item = DirectoryItem(context.localize(self._local_map['vimeo.featured']),
+                                      context.create_uri(['featured']),
+                                      image=context.create_resource_path('media', 'featured.png'))
+        featured_item.set_fanart(self.get_fanart(context))
+        result.append(featured_item)
 
         if self._is_logged_in:
             # my feed
