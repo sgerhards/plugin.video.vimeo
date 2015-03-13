@@ -1,4 +1,5 @@
 from resources.lib.kodion.items import DirectoryItem, UriItem
+from resources.lib.kodion.utils import FunctionCache
 from resources.lib.vimeo.client import Client
 
 __author__ = 'bromix'
@@ -112,7 +113,7 @@ class Provider(kodion.AbstractProvider):
 
         client = self.get_client(context)
         page = int(context.get_param('page', '1'))
-        xml = client.search(query=search_text, page=page)
+        xml = context.get_function_cache().get(FunctionCache.ONE_HOUR, client.search, query=search_text, page=page)
         result.extend(helper.do_xml_videos_response(context, self, xml))
 
         return result
@@ -139,12 +140,13 @@ class Provider(kodion.AbstractProvider):
 
     # LIST: MY FEEDs
     @kodion.RegisterProviderPath('^/user/me/feed/$')
-    def _on_me_feed(self, context, re_match):
+    def _on_my_feed(self, context, re_match):
         self.set_content_type(context, kodion.constants.content_type.EPISODES)
 
         page = int(context.get_param('page', '1'))
         client = self.get_client(context)
-        return helper.do_xml_videos_response(context, self, client.get_my_feed(page=page))
+        xml = context.get_function_cache().get(FunctionCache.ONE_MINUTE*15, client.get_my_feed, page=page)
+        return helper.do_xml_videos_response(context, self, xml)
 
     # LIST: WATCH LATER
     @kodion.RegisterProviderPath('^/user/me/watch-later/$')
