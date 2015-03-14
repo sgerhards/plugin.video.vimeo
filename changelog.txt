@@ -1,4 +1,5 @@
 4.0.2~beta5 (2015-03-14)
+UPD: optimized for KODI 15.X (Isengard)
 
 4.0.2~beta4 (2015-03-14)
 ADD: 'Featured'
