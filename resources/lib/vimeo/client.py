@@ -455,7 +455,12 @@ class Client():
             list_of_params = []
             for key in sorted_keys:
                 value = _params[key]
-                list_of_params.append('%s=%s' % (key, _percent_encode(value)))
+                if url == 'https://secure.vimeo.com/oauth/access_token':
+                    list_of_params.append('%s=%s' % (key, value))
+                    pass
+                else:
+                    list_of_params.append('%s=%s' % (key, _percent_encode(value)))
+                    pass
                 pass
             return '&'.join(list_of_params)
 
