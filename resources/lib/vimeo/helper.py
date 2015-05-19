@@ -1,9 +1,8 @@
-import re
+__author__ = 'bromix'
+
 from resources.lib import kodion
 from resources.lib.kodion.items import VideoItem, NextPageItem
 from resources.lib.kodion.items.directory_item import DirectoryItem
-
-__author__ = 'bromix'
 
 import xml.etree.ElementTree as ET
 
