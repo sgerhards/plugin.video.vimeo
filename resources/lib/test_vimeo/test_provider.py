@@ -7,16 +7,6 @@ import unittest
 
 
 class TestProvider(unittest.TestCase):
-    def test_channel_by_name(self):
-        provider = Provider()
-
-        path = kodion.utils.create_path('user', 'Gronkh')
-        context = kodion.Context(path=path)
-        context.set_localization(30502, 'Go to %s')
-        result = provider.navigate(context)
-        items = result[0]
-        pass
-
     def test_play(self):
         provider = Provider()
 
@@ -54,23 +44,6 @@ class TestProvider(unittest.TestCase):
         context = kodion.Context(path=path)
         result = provider.navigate(context)
         items = result[0]
-        pass
-
-    def test_on_search_playlist(self):
-        provider = Provider()
-
-        path = kodion.utils.create_path(kodion.constants.paths.SEARCH, 'query')
-        context = kodion.Context(path=path, params={'q': 'lgr', 'search_type': 'playlist'})
-        result = provider.navigate(context)
-        items = result[0]
-        self.assertGreater(len(items), 0)
-        kodion.utils.print_items(items)
-
-        context = context.clone(new_path=path, new_params={'q': 'lgr', 'search_type': 'playlist', 'page_token': 'CDIQAA'})
-        result = provider.navigate(context)
-        items = result[0]
-        self.assertGreater(len(items), 0)
-        kodion.utils.print_items(items)
         pass
 
     def test_on_search_video(self):
