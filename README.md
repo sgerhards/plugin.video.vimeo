@@ -1,22 +1,28 @@
-![](https://raw.githubusercontent.com/bromix/repository.bromix.storage/master/plugin.video.golem.de/icon.png)
+![](https://raw.githubusercontent.com/bromix/repository.bromix.storage/master/plugin.video.vimeo/icon.png)
 # **Links:**
 
-* [Golem.de](www.golem.de/)
+* [Vimeo](www.vimeo.com)
+* [EndPoints](https://github.com/bromix/plugin.video.vimeo/wiki/Endpoints)
 
 [![](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif)](https://goo.gl/U5oVOj) [![](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://goo.gl/15V9TN) [![](https://www.paypalobjects.com/de_DE/i/btn/btn_donate_LG.gif)](https://goo.gl/oEjE9E) [![](https://pledgie.com/campaigns/29261.png?skin_name=chrome)](https://goo.gl/K4RZrZ) 
 
 # **Changelog:**
 
-## **2.0.2**
+## **4.1.4**
 
-* localization was missing a text and the ID was wrong
+* unicode/utf-8 trouble in kodion
 
-## **2.0.1**
+## **4.1.3**
 
-* moved from *.xml to *.po localizations
+* Endpoints search
+* code cleaning
 
-## **2.0.0**
+## **4.1.2**
 
+* proper video selection
 * framework
+* forum link in addon.xml
 
 
+# **Images:**
+![](http://i.imgur.com/hLwPbAH.png)
